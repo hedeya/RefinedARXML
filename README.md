@@ -30,15 +30,28 @@ A professional-grade GUI editor for AUTOSAR XML (ARXML) files with comprehensive
 
 ## 📦 Installation
 
-### Prerequisites
+### Windows (Recommended)
+Download the pre-built Windows executable from the [Releases](https://github.com/hedeya/RefinedARXML/releases) page:
+
+1. **Download**: Get `ARXMLEditor-Windows-Complete.zip` for the full package
+2. **Extract**: Unzip to your desired location
+3. **Run**: Double-click `run_editor.bat` or `ARXMLEditor.exe`
+
+**System Requirements:**
+- Windows 10/11 (64-bit)
+- No additional software installation required
+
+### Linux/macOS - Install from Source
+
+#### Prerequisites
 - Python 3.9 or higher
 - Qt6 libraries (installed automatically with PySide6)
 
-### Install from Source
+#### Install from Source
 ```bash
 # Clone the repository
-git clone https://github.com/arxml-editor/arxml-editor.git
-cd arxml-editor
+git clone https://github.com/hedeya/RefinedARXML.git
+cd RefinedARXML
 
 # Install dependencies
 pip install -r requirements.txt
@@ -47,7 +60,7 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-### Run the Application
+#### Run the Application
 ```bash
 # Method 1: Using the launcher script
 python run_editor.py
@@ -239,9 +252,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/arxml-editor/arxml-editor/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/arxml-editor/arxml-editor/discussions)
-- **Documentation**: [Read the Docs](https://arxml-editor.readthedocs.io/)
+- **Issues**: [GitHub Issues](https://github.com/hedeya/RefinedARXML/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/hedeya/RefinedARXML/discussions)
+- **Releases**: [GitHub Releases](https://github.com/hedeya/RefinedARXML/releases)
 
 ## 🗺️ Roadmap
 
