@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  arxml-editor:
+    build: .
+    container_name: arxml-editor
+    volumes:
+      - ./examples:/app/examples
+      - ./output:/app/output
+    environment:
+      - DISPLAY=:99
+    ports:
+      - "8080:8080"
+    command: python run_editor.py
