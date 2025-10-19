@@ -48,6 +48,8 @@ def create_simple_windows_package():
 
 # GUI Framework
 PyQt6>=6.6.0
+PyQt6-Qt6>=6.6.0
+PyQt6-sip>=13.0.0
 
 # Basic XML processing
 lxml>=4.9.0
@@ -227,16 +229,26 @@ class SimpleARXMLEditor(QMainWindow):
 
 def main():
     """Main application entry point"""
-    app = QApplication(sys.argv)
-    app.setApplicationName("ARXML Editor Simple")
-    app.setApplicationVersion("1.0.0")
-    
-    # Create and show main window
-    window = SimpleARXMLEditor()
-    window.show()
-    
-    # Run the application
-    sys.exit(app.exec())
+    try:
+        print("Starting ARXML Editor Simple...")
+        app = QApplication(sys.argv)
+        app.setApplicationName("ARXML Editor Simple")
+        app.setApplicationVersion("1.0.0")
+        
+        print("Creating main window...")
+        # Create and show main window
+        window = SimpleARXMLEditor()
+        window.show()
+        
+        print("Application ready. Starting event loop...")
+        # Run the application
+        sys.exit(app.exec())
+    except Exception as e:
+        print(f"Error starting application: {e}")
+        import traceback
+        traceback.print_exc()
+        input("Press Enter to exit...")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
@@ -250,6 +262,7 @@ if __name__ == "__main__":
     spec_content = '''# -*- mode: python ; coding: utf-8 -*-
 
 import os
+import sys
 from pathlib import Path
 
 # Get the project root directory
@@ -257,25 +270,90 @@ project_root = Path.cwd()
 
 block_cipher = None
 
+# Collect PyQt6 binaries and data files
+def collect_pyqt6_files():
+    """Collect PyQt6 Qt6 binaries and platform plugins"""
+    binaries = []
+    datas = []
+    
+    try:
+        import PyQt6
+        pyqt6_path = Path(PyQt6.__file__).parent
+        
+        # Add Qt6 DLLs
+        qt6_dlls = [
+            'Qt6Core.dll',
+            'Qt6Gui.dll', 
+            'Qt6Widgets.dll',
+            'Qt6OpenGL.dll',
+            'Qt6Svg.dll',
+            'Qt6Network.dll',
+            'Qt6PrintSupport.dll',
+        ]
+        
+        for dll in qt6_dlls:
+            dll_path = pyqt6_path / 'Qt6' / 'bin' / dll
+            if dll_path.exists():
+                binaries.append((str(dll_path), 'Qt6/bin'))
+        
+        # Add platform plugins
+        plugins_path = pyqt6_path / 'Qt6' / 'plugins'
+        if plugins_path.exists():
+            datas.append((str(plugins_path), 'Qt6/plugins'))
+        
+        # Add Qt6 libraries
+        lib_path = pyqt6_path / 'Qt6' / 'lib'
+        if lib_path.exists():
+            datas.append((str(lib_path), 'Qt6/lib'))
+            
+    except ImportError:
+        print("Warning: PyQt6 not found, skipping Qt6 binary collection")
+    
+    return binaries, datas
+
+# Collect PyQt6 files
+pyqt6_binaries, pyqt6_datas = collect_pyqt6_files()
+
 a = Analysis(
     ['main_simple.py'],
     pathex=[str(project_root)],
-    binaries=[],
+    binaries=pyqt6_binaries,
     datas=[
         ('examples', 'examples'),
         ('README.md', '.'),
         ('arxml_editor.ico', '.'),
-    ],
+    ] + pyqt6_datas,
     hiddenimports=[
         # PyQt6 modules
         'PyQt6.QtCore',
         'PyQt6.QtGui',
         'PyQt6.QtWidgets',
+        'PyQt6.QtOpenGL',
+        'PyQt6.QtSvg',
+        'PyQt6.QtNetwork',
+        'PyQt6.QtPrintSupport',
+        'PyQt6.sip',
+        'PyQt6.Qt6',
+        # PyQt6 platform plugins
+        'PyQt6.Qt6.plugins.platforms',
+        'PyQt6.Qt6.plugins.platforms.qwindows',
+        'PyQt6.Qt6.plugins.platforms.qminimal',
+        'PyQt6.Qt6.plugins.platforms.qoffscreen',
+        'PyQt6.Qt6.plugins.styles',
+        'PyQt6.Qt6.plugins.imageformats',
         # Basic modules
         'xml.etree.ElementTree',
         'pathlib',
         'lxml',
+        'lxml.etree',
         'xmlschema',
+        'xmlschema.validators',
+        # System modules
+        'sys',
+        'os',
+        'logging',
+        'threading',
+        'queue',
     ],
     hookspath=[],
     hooksconfig={},
@@ -312,7 +390,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=True,  # Enable console for debugging
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

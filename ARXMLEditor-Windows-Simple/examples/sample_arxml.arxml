@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AUTOSAR xmlns="http://autosar.org/schema/r4.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://autosar.org/schema/r4.2 AUTOSAR_4-2-0.xsd">
+  <AR-PACKAGES>
+    <AR-PACKAGE>
+      <SHORT-NAME>SamplePackage</SHORT-NAME>
+      <LONG-NAME>Sample ARXML Package</LONG-NAME>
+      <ELEMENTS>
+        <ELEMENT>
+          <SHORT-NAME>SampleElement</SHORT-NAME>
+          <LONG-NAME>Sample ARXML Element</LONG-NAME>
+          <CONTAINERS>
+            <CONTAINER>
+              <SHORT-NAME>SampleContainer</SHORT-NAME>
+              <LONG-NAME>Sample Container</LONG-NAME>
+              <PARAMETERS>
+                <PARAMETER>
+                  <SHORT-NAME>SampleParameter</SHORT-NAME>
+                  <LONG-NAME>Sample Parameter</LONG-NAME>
+                  <VALUE>SampleValue</VALUE>
+                </PARAMETER>
+              </PARAMETERS>
+            </CONTAINER>
+          </CONTAINERS>
+        </ELEMENT>
+      </ELEMENTS>
+    </AR-PACKAGE>
+  </AR-PACKAGES>
+</AUTOSAR>

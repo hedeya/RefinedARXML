@@ -52,6 +52,29 @@ def create_windows_build_package():
         "arxml_editor.ico",
     ]
     
+    # Copy compatibility files
+    compatibility_files = [
+        "gui_compatibility.py",
+        "gui_framework_detector.py",
+        "main_compatible.py",
+        "install_gui_framework.py",
+    ]
+    
+    for file_name in compatibility_files:
+        if Path(file_name).exists():
+            shutil.copy2(file_name, package_dir / file_name)
+            print(f"  Copied {file_name}")
+        else:
+            # Create the file if it doesn't exist
+            if file_name == "install_gui_framework.py":
+                create_install_gui_framework_script(package_dir)
+            elif file_name == "main_compatible.py":
+                create_main_compatible_script(package_dir)
+            elif file_name == "gui_compatibility.py":
+                create_gui_compatibility_script(package_dir)
+            elif file_name == "gui_framework_detector.py":
+                create_gui_framework_detector_script(package_dir)
+    
     for file_name in files_to_copy:
         if Path(file_name).exists():
             shutil.copy2(file_name, package_dir / file_name)
@@ -111,10 +134,20 @@ echo.
 echo Installing/upgrading pip...
 python -m pip install --upgrade pip
 
-REM Install requirements
+REM Install GUI framework first
 echo.
-echo Installing requirements...
-python -m pip install -r requirements_windows.txt
+echo Installing GUI framework...
+python install_gui_framework.py
+
+REM Install basic requirements first
+echo.
+echo Installing basic requirements...
+python -m pip install lxml xmlschema networkx matplotlib pydantic typing-extensions pyinstaller pywin32
+
+REM Try to install autosar-data (may fail on some systems)
+echo.
+echo Installing ARXML processing library...
+python -m pip install autosar-data || echo WARNING: autosar-data installation failed - continuing without it
 
 REM Install PyInstaller
 echo.
@@ -253,24 +286,71 @@ import os
 import sys
 from pathlib import Path
 
-# Get the project root directory
-project_root = Path(__file__).parent
+# Get the project root directory - use current working directory instead of __file__
+project_root = Path.cwd()
 
 block_cipher = None
 
+# Collect PyQt6 binaries and data files
+def collect_pyqt6_files():
+    """Collect PyQt6 Qt6 binaries and platform plugins"""
+    binaries = []
+    datas = []
+    
+    try:
+        import PyQt6
+        pyqt6_path = Path(PyQt6.__file__).parent
+        
+        # Add Qt6 DLLs
+        qt6_dlls = [
+            'Qt6Core.dll',
+            'Qt6Gui.dll', 
+            'Qt6Widgets.dll',
+            'Qt6OpenGL.dll',
+            'Qt6Svg.dll',
+            'Qt6Network.dll',
+            'Qt6PrintSupport.dll',
+        ]
+        
+        for dll in qt6_dlls:
+            dll_path = pyqt6_path / 'Qt6' / 'bin' / dll
+            if dll_path.exists():
+                binaries.append((str(dll_path), 'Qt6/bin'))
+        
+        # Add platform plugins
+        plugins_path = pyqt6_path / 'Qt6' / 'plugins'
+        if plugins_path.exists():
+            datas.append((str(plugins_path), 'Qt6/plugins'))
+        
+        # Add Qt6 libraries
+        lib_path = pyqt6_path / 'Qt6' / 'lib'
+        if lib_path.exists():
+            datas.append((str(lib_path), 'Qt6/lib'))
+            
+    except ImportError:
+        print("Warning: PyQt6 not found, skipping Qt6 binary collection")
+    
+    return binaries, datas
+
+# Collect PyQt6 files
+pyqt6_binaries, pyqt6_datas = collect_pyqt6_files()
+
 # Analysis configuration
 a = Analysis(
-    ['arxml_editor/main.py'],
+    ['main_compatible.py'],
     pathex=[str(project_root)],
-    binaries=[],
+    binaries=pyqt6_binaries,
     datas=[
         ('examples', 'examples'),
         ('arxml_editor/validation', 'arxml_editor/validation'),
         ('README.md', '.'),
         ('requirements_windows.txt', '.'),
-    ],
+        ('gui_compatibility.py', '.'),
+        ('gui_framework_detector.py', '.'),
+        ('simple_arxml_model.py', '.'),
+    ] + pyqt6_datas,
     hiddenimports=[
-        # PySide6 modules
+        # PySide6 modules (for Python < 3.14)
         'PySide6.QtCore',
         'PySide6.QtGui', 
         'PySide6.QtWidgets',
@@ -278,6 +358,25 @@ a = Analysis(
         'PySide6.QtOpenGLWidgets',
         'PySide6.QtSvg',
         'PySide6.QtSvgWidgets',
+        # PyQt6 modules (for Python >= 3.14)
+        'PyQt6.QtCore',
+        'PyQt6.QtGui', 
+        'PyQt6.QtWidgets',
+        'PyQt6.QtOpenGL',
+        'PyQt6.QtOpenGLWidgets',
+        'PyQt6.QtSvg',
+        'PyQt6.QtSvgWidgets',
+        'PyQt6.QtNetwork',
+        'PyQt6.QtPrintSupport',
+        'PyQt6.sip',
+        'PyQt6.Qt6',
+        # PyQt6 platform plugins
+        'PyQt6.Qt6.plugins.platforms',
+        'PyQt6.Qt6.plugins.platforms.qwindows',
+        'PyQt6.Qt6.plugins.platforms.qminimal',
+        'PyQt6.Qt6.plugins.platforms.qoffscreen',
+        'PyQt6.Qt6.plugins.styles',
+        'PyQt6.Qt6.plugins.imageformats',
         
         # XML processing
         'xml.etree.ElementTree',
@@ -311,11 +410,11 @@ a = Analysis(
         'pydantic.validators',
         'typing_extensions',
         
-        # ARXML processing
-        'autosar_data',
-        'autosar_data.core',
-        'autosar_data.schema',
-        'autosar_data.validation',
+        # ARXML processing (optional - may not be available)
+        # 'autosar_data',
+        # 'autosar_data.core',
+        # 'autosar_data.schema',
+        # 'autosar_data.validation',
         
         # Additional modules that might be needed
         'encodings',
@@ -383,15 +482,15 @@ exe = EXE(
 def create_windows_requirements(package_dir):
     """Create Windows-specific requirements file"""
     requirements_content = '''# ARXML Editor - Windows Requirements
-# Optimized for Windows compatibility
+# Optimized for Windows compatibility and Python 3.14 support
 
-# Core GUI framework
-PySide6>=6.6.0
+# Core GUI framework - try PySide6 first, fallback to PyQt6
+PySide6>=6.6.0,<6.14; python_version<"3.14"
+PyQt6>=6.6.0; python_version>="3.14"
+PyQt6-Qt6>=6.6.0; python_version>="3.14"
+PyQt6-sip>=13.0.0; python_version>="3.14"
 
-# ARXML processing
-autosar-data>=0.1.0
-
-# XML processing
+# XML processing (core dependencies only)
 lxml>=4.9.0
 
 # Schema validation
@@ -412,6 +511,13 @@ pyinstaller>=5.0.0
 
 # Additional Windows-specific dependencies
 pywin32>=306; sys_platform == "win32"
+
+# Fallback GUI framework for Python 3.14
+PyQt6-Qt6>=6.6.0; python_version>="3.14"
+PyQt6-sip>=13.0.0; python_version>="3.14"
+
+# Note: autosar-data package requires Rust compilation
+# It will be installed separately if needed
 '''
     
     with open(package_dir / "requirements_windows.txt", 'w', encoding='utf-8') as f:
@@ -529,6 +635,299 @@ After building:
     
     with open(package_dir / "BUILD_INSTRUCTIONS.md", 'w', encoding='utf-8') as f:
         f.write(instructions)
+
+def create_install_gui_framework_script(package_dir):
+    """Create GUI framework installation script"""
+    script_content = '''#!/usr/bin/env python3
+"""
+GUI Framework Installation Script
+
+This script installs the appropriate GUI framework based on Python version.
+"""
+
+import sys
+import subprocess
+
+def install_gui_framework():
+    """Install the appropriate GUI framework based on Python version"""
+    print(f"Python version: {sys.version}")
+    
+    if sys.version_info >= (3, 14):
+        print("Python 3.14+ detected - installing PyQt6...")
+        try:
+            subprocess.run([sys.executable, '-m', 'pip', 'install', 'PyQt6', 'PyQt6-Qt6', 'PyQt6-sip'], check=True)
+            print("PyQt6 installed successfully")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to install PyQt6: {e}")
+            return False
+    else:
+        print("Python < 3.14 detected - installing PySide6...")
+        try:
+            subprocess.run([sys.executable, '-m', 'pip', 'install', 'PySide6'], check=True)
+            print("PySide6 installed successfully")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to install PySide6: {e}")
+            return False
+    
+    return True
+
+if __name__ == "__main__":
+    success = install_gui_framework()
+    if success:
+        print("GUI framework installation completed successfully!")
+    else:
+        print("GUI framework installation failed!")
+        sys.exit(1)
+'''
+    
+    with open(package_dir / "install_gui_framework.py", 'w', encoding='utf-8') as f:
+        f.write(script_content)
+
+def create_main_compatible_script(package_dir):
+    """Create compatible main script"""
+    script_content = '''"""
+Main entry point for ARXML Editor application.
+
+Launches the GUI application with proper error handling and logging.
+Compatible with both PySide6 and PyQt6.
+"""
+
+import sys
+import logging
+from pathlib import Path
+
+# Import GUI compatibility layer
+try:
+    from gui_compatibility import QtCore, QtGui, QtWidgets
+except ImportError:
+    # Fallback to direct imports if compatibility layer fails
+    try:
+        from PySide6.QtWidgets import QApplication, QMessageBox
+        from PySide6.QtCore import Qt
+        from PySide6.QtGui import QIcon
+    except ImportError:
+        try:
+            from PyQt6.QtWidgets import QApplication, QMessageBox
+            from PyQt6.QtCore import Qt
+            from PyQt6.QtGui import QIcon
+        except ImportError:
+            print("Error: Neither PySide6 nor PyQt6 is available.")
+            print("Please install PySide6 (for Python < 3.14) or PyQt6 (for Python >= 3.14)")
+            sys.exit(1)
+
+# Import the main window and model
+try:
+    from arxml_editor.ui.main_window import MainWindow
+    # Try to import the full model first, fallback to simplified version
+    try:
+        from arxml_editor.core.arxml_model import ARXMLModel
+    except ImportError:
+        print("Warning: Could not import full ARXML model, using simplified version")
+        from simple_arxml_model import SimpleARXMLModel as ARXMLModel
+except ImportError:
+    print("Error: Could not import ARXML Editor modules.")
+    print("Please ensure all source files are present.")
+    sys.exit(1)
+
+
+def setup_logging():
+    """Set up application logging."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler('arxml_editor.log'),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+
+
+def main():
+    """Main application entry point."""
+    try:
+        # Set up logging
+        setup_logging()
+        logger = logging.getLogger(__name__)
+        logger.info("Starting ARXML Editor...")
+        
+        # Create QApplication
+        app = QApplication(sys.argv)
+        app.setApplicationName("ARXML Editor")
+        app.setApplicationVersion("1.0.0")
+        app.setOrganizationName("ARXML Editor Team")
+        
+        # Set application icon if available
+        icon_path = Path(__file__).parent / "arxml_editor.ico"
+        if icon_path.exists():
+            app.setWindowIcon(QIcon(str(icon_path)))
+        
+        # Create and show main window
+        main_window = MainWindow()
+        main_window.show()
+        
+        logger.info("ARXML Editor started successfully")
+        
+        # Run the application
+        sys.exit(app.exec())
+        
+    except Exception as e:
+        logger.error(f"Failed to start ARXML Editor: {e}")
+        print(f"Error: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
+'''
+    
+    with open(package_dir / "main_compatible.py", 'w', encoding='utf-8') as f:
+        f.write(script_content)
+
+def create_gui_compatibility_script(package_dir):
+    """Create GUI compatibility script"""
+    script_content = '''#!/usr/bin/env python3
+"""
+GUI Compatibility Layer for ARXML Editor
+
+This module provides compatibility between PySide6 and PyQt6
+by dynamically importing the appropriate GUI framework.
+"""
+
+import sys
+
+def get_gui_imports():
+    """Get the appropriate GUI imports based on available framework"""
+    # Try PySide6 first (for Python < 3.14)
+    try:
+        import PySide6
+        return {
+            'QtCore': 'PySide6.QtCore',
+            'QtGui': 'PySide6.QtGui',
+            'QtWidgets': 'PySide6.QtWidgets',
+            'QtOpenGL': 'PySide6.QtOpenGL',
+            'QtOpenGLWidgets': 'PySide6.QtOpenGLWidgets',
+            'QtSvg': 'PySide6.QtSvg',
+            'QtSvgWidgets': 'PySide6.QtSvgWidgets',
+        }
+    except ImportError:
+        # Fallback to PyQt6 (for Python >= 3.14)
+        try:
+            import PyQt6
+            return {
+                'QtCore': 'PyQt6.QtCore',
+                'QtGui': 'PyQt6.QtGui',
+                'QtWidgets': 'PyQt6.QtWidgets',
+                'QtOpenGL': 'PyQt6.QtOpenGL',
+                'QtOpenGLWidgets': 'PyQt6.QtOpenGLWidgets',
+                'QtSvg': 'PyQt6.QtSvg',
+                'QtSvgWidgets': 'PyQt6.QtSvgWidgets',
+            }
+        except ImportError:
+            raise ImportError("Neither PySide6 nor PyQt6 is available. Please install one of them.")
+
+def import_gui_modules():
+    """Import GUI modules dynamically"""
+    imports = get_gui_imports()
+    
+    # Import the modules
+    QtCore = __import__(imports['QtCore'], fromlist=['QtCore'])
+    QtGui = __import__(imports['QtGui'], fromlist=['QtGui'])
+    QtWidgets = __import__(imports['QtWidgets'], fromlist=['QtWidgets'])
+    
+    # Return the modules
+    return QtCore, QtGui, QtWidgets
+
+# Make the modules available at module level
+try:
+    QtCore, QtGui, QtWidgets = import_gui_modules()
+except ImportError as e:
+    print(f"Error importing GUI framework: {e}")
+    print("Please install PySide6 (for Python < 3.14) or PyQt6 (for Python >= 3.14)")
+    sys.exit(1)
+'''
+    
+    with open(package_dir / "gui_compatibility.py", 'w', encoding='utf-8') as f:
+        f.write(script_content)
+
+def create_gui_framework_detector_script(package_dir):
+    """Create GUI framework detector script"""
+    script_content = '''#!/usr/bin/env python3
+"""
+GUI Framework Detector for ARXML Editor
+
+This script detects which GUI framework is available and provides
+compatibility imports for both PySide6 and PyQt6.
+"""
+
+import sys
+
+def detect_gui_framework():
+    """Detect which GUI framework is available"""
+    try:
+        import PySide6
+        return 'PySide6'
+    except ImportError:
+        try:
+            import PyQt6
+            return 'PyQt6'
+        except ImportError:
+            return None
+
+def get_gui_imports():
+    """Get the appropriate GUI imports based on available framework"""
+    framework = detect_gui_framework()
+    
+    if framework == 'PySide6':
+        return {
+            'QtCore': 'PySide6.QtCore',
+            'QtGui': 'PySide6.QtGui',
+            'QtWidgets': 'PySide6.QtWidgets',
+            'QtOpenGL': 'PySide6.QtOpenGL',
+            'QtOpenGLWidgets': 'PySide6.QtOpenGLWidgets',
+            'QtSvg': 'PySide6.QtSvg',
+            'QtSvgWidgets': 'PySide6.QtSvgWidgets',
+        }
+    elif framework == 'PyQt6':
+        return {
+            'QtCore': 'PyQt6.QtCore',
+            'QtGui': 'PyQt6.QtGui',
+            'QtWidgets': 'PyQt6.QtWidgets',
+            'QtOpenGL': 'PyQt6.QtOpenGL',
+            'QtOpenGLWidgets': 'PyQt6.QtOpenGLWidgets',
+            'QtSvg': 'PyQt6.QtSvg',
+            'QtSvgWidgets': 'PyQt6.QtSvgWidgets',
+        }
+    else:
+        raise ImportError("Neither PySide6 nor PyQt6 is available. Please install one of them.")
+
+def install_gui_framework():
+    """Install the appropriate GUI framework based on Python version"""
+    if sys.version_info >= (3, 14):
+        print("Python 3.14+ detected - installing PyQt6...")
+        import subprocess
+        subprocess.run([sys.executable, '-m', 'pip', 'install', 'PyQt6', 'PyQt6-Qt6', 'PyQt6-sip'])
+    else:
+        print("Python < 3.14 detected - installing PySide6...")
+        import subprocess
+        subprocess.run([sys.executable, '-m', 'pip', 'install', 'PySide6'])
+
+if __name__ == "__main__":
+    framework = detect_gui_framework()
+    if framework:
+        print(f"GUI framework detected: {framework}")
+    else:
+        print("No GUI framework detected. Installing appropriate framework...")
+        install_gui_framework()
+        framework = detect_gui_framework()
+        if framework:
+            print(f"GUI framework installed: {framework}")
+        else:
+            print("Failed to install GUI framework")
+            sys.exit(1)
+'''
+    
+    with open(package_dir / "gui_framework_detector.py", 'w', encoding='utf-8') as f:
+        f.write(script_content)
 
 def create_batch_launcher(package_dir):
     """Create batch file for easy execution"""
