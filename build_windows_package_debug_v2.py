@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Debug Windows Build Package Creator for ARXML Editor
-
-This creates a debug version that shows console output for troubleshooting.
+Enhanced Debug Windows Build Package Creator for ARXML Editor
+This version uses a more robust approach for PyQt6 bundling
 """
 
 import os
@@ -10,15 +9,15 @@ import shutil
 import zipfile
 from pathlib import Path
 
-def create_debug_windows_package():
-    """Create a debug Windows build package"""
+def create_enhanced_debug_windows_package():
+    """Create an enhanced debug Windows build package with better PyQt6 support"""
     print("=" * 60)
-    print("ARXML Editor - Debug Windows Build Package Creator")
+    print("ARXML Editor - Enhanced Debug Windows Build Package Creator")
     print("=" * 60)
-    print("Creating debug Windows build package...")
+    print("Creating enhanced debug Windows build package...")
     
     # Create package directory
-    package_dir = Path("ARXMLEditor-Windows-Debug")
+    package_dir = Path("ARXMLEditor-Windows-Debug-Enhanced")
     if package_dir.exists():
         shutil.rmtree(package_dir)
     package_dir.mkdir()
@@ -40,12 +39,11 @@ def create_debug_windows_package():
                 shutil.copy2(item, package_dir / item)
             print(f"  Copied {item}")
     
-    # Create debug main script
-    print("Creating debug main script...")
+    # Create enhanced debug main script
+    print("Creating enhanced debug main script...")
     main_script = '''"""
-Debug ARXML Editor - Main Entry Point
-
-A debug version that shows console output for troubleshooting.
+Enhanced Debug ARXML Editor - Main Entry Point
+This version includes better PyQt6 error handling and fallback mechanisms.
 """
 
 import sys
@@ -53,7 +51,7 @@ import os
 from pathlib import Path
 
 print("=" * 50)
-print("ARXML Editor Debug - Starting...")
+print("ARXML Editor Enhanced Debug - Starting...")
 print("=" * 50)
 print(f"Python version: {sys.version}")
 print(f"Python executable: {sys.executable}")
@@ -65,33 +63,124 @@ print("=" * 50)
 sys.path.insert(0, str(Path(__file__).parent))
 print("Added current directory to Python path")
 
-try:
-    print("Importing PyQt6...")
-    from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QTextEdit, QMenuBar, QMenu, QFileDialog, QMessageBox
-    from PyQt6.QtCore import Qt
-    from PyQt6.QtGui import QIcon, QAction
-    print("PyQt6 imported successfully")
-except ImportError as e:
-    print(f"Error importing PyQt6: {e}")
-    print("Please install PyQt6 with: pip install PyQt6")
-    input("Press Enter to exit...")
+# Set up environment for PyQt6
+def setup_pyqt6_environment():
+    """Set up environment variables for PyQt6"""
+    if hasattr(sys, '_MEIPASS'):
+        meipass = Path(sys._MEIPASS)
+        print(f"PyInstaller bundle detected: {meipass}")
+        
+        # Add Qt6 paths to environment
+        qt6_bin = meipass / 'Qt6' / 'bin'
+        qt6_plugins = meipass / 'Qt6' / 'plugins'
+        qt6_lib = meipass / 'Qt6' / 'lib'
+        
+        if qt6_bin.exists():
+            current_path = os.environ.get('PATH', '')
+            os.environ['PATH'] = str(qt6_bin) + os.pathsep + current_path
+            print(f"Added Qt6 bin to PATH: {qt6_bin}")
+        
+        if qt6_plugins.exists():
+            os.environ['QT_PLUGIN_PATH'] = str(qt6_plugins)
+            print(f"Set QT_PLUGIN_PATH: {qt6_plugins}")
+        
+        if qt6_lib.exists():
+            os.environ['QT_LIBRARY_PATH'] = str(qt6_lib)
+            print(f"Set QT_LIBRARY_PATH: {qt6_lib}")
+    else:
+        print("Running from source (not PyInstaller bundle)")
+
+# Set up environment
+setup_pyqt6_environment()
+
+# Try to import PyQt6 with detailed error reporting
+def import_pyqt6():
+    """Import PyQt6 with detailed error reporting"""
+    try:
+        print("Attempting to import PyQt6.QtCore...")
+        from PyQt6.QtCore import Qt, QCoreApplication
+        print("✓ PyQt6.QtCore imported successfully")
+        print(f"  Qt version: {Qt.PYQT_VERSION_STR}")
+        
+        print("Attempting to import PyQt6.QtGui...")
+        from PyQt6.QtGui import QIcon, QFont
+        print("✓ PyQt6.QtGui imported successfully")
+        
+        print("Attempting to import PyQt6.QtWidgets...")
+        from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QTextEdit, QMenuBar, QMenu, QFileDialog, QMessageBox
+        print("✓ PyQt6.QtWidgets imported successfully")
+        
+        return True
+        
+    except ImportError as e:
+        print(f"✗ PyQt6 import failed: {e}")
+        print(f"  Error type: {type(e).__name__}")
+        
+        # Try to provide more specific error information
+        if "DLL load failed" in str(e):
+            print("  This is a DLL loading issue. Possible causes:")
+            print("  - Missing Qt6 DLLs")
+            print("  - Incorrect Qt6 plugin path")
+            print("  - Missing Visual C++ Redistributable")
+            print("  - Architecture mismatch (32-bit vs 64-bit)")
+        elif "No module named" in str(e):
+            print("  This is a module import issue. Possible causes:")
+            print("  - PyQt6 not installed")
+            print("  - Incorrect Python environment")
+            print("  - Missing PyQt6-Qt6 package")
+        
+        return False
+    except Exception as e:
+        print(f"✗ Unexpected error importing PyQt6: {e}")
+        print(f"  Error type: {type(e).__name__}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+# Try to import PyQt6
+if not import_pyqt6():
+    print("\\n" + "=" * 50)
+    print("PYQT6 IMPORT FAILED - TROUBLESHOOTING INFO")
+    print("=" * 50)
+    print("Environment variables:")
+    print(f"  PATH: {os.environ.get('PATH', 'Not set')[:200]}...")
+    print(f"  QT_PLUGIN_PATH: {os.environ.get('QT_PLUGIN_PATH', 'Not set')}")
+    print(f"  QT_LIBRARY_PATH: {os.environ.get('QT_LIBRARY_PATH', 'Not set')}")
+    print("\\nPyInstaller info:")
+    if hasattr(sys, '_MEIPASS'):
+        print(f"  Bundle path: {sys._MEIPASS}")
+        meipass = Path(sys._MEIPASS)
+        print(f"  Qt6 bin exists: {(meipass / 'Qt6' / 'bin').exists()}")
+        print(f"  Qt6 plugins exists: {(meipass / 'Qt6' / 'plugins').exists()}")
+        print(f"  Qt6 lib exists: {(meipass / 'Qt6' / 'lib').exists()}")
+    else:
+        print("  Not running from PyInstaller bundle")
+    
+    print("\\nPlease try:")
+    print("1. Install Visual C++ Redistributable for Visual Studio 2015-2022")
+    print("2. Rebuild the executable with: BUILD_DEBUG.bat")
+    print("3. Check that you're using 64-bit Python and 64-bit PyQt6")
+    input("\\nPress Enter to exit...")
     sys.exit(1)
 
-class DebugARXMLEditor(QMainWindow):
-    """Debug ARXML Editor main window"""
+print("\\n✓ All PyQt6 modules imported successfully!")
+print("=" * 50)
+
+class EnhancedDebugARXMLEditor(QMainWindow):
+    """Enhanced Debug ARXML Editor main window"""
     
     def __init__(self):
-        print("Creating main window...")
+        print("Creating enhanced main window...")
         super().__init__()
         self.current_file = None
         self.init_ui()
-        print("Main window created successfully")
+        print("Enhanced main window created successfully")
     
     def init_ui(self):
         """Initialize the user interface"""
-        print("Initializing UI...")
-        self.setWindowTitle("ARXML Editor - Debug Version")
-        self.setGeometry(100, 100, 800, 600)
+        print("Initializing enhanced UI...")
+        self.setWindowTitle("ARXML Editor - Enhanced Debug Version")
+        self.setGeometry(100, 100, 900, 700)
         
         # Set window icon if available
         icon_path = Path(__file__).parent / "arxml_editor.ico"
@@ -110,19 +199,27 @@ class DebugARXMLEditor(QMainWindow):
         
         # Create text area
         self.text_area = QTextEdit()
-        self.text_area.setPlaceholderText("ARXML content will appear here...\\n\\nDebug info:\\n- PyQt6 is working\\n- GUI is responsive\\n- Ready for ARXML editing")
+        self.text_area.setPlaceholderText(
+            "ARXML content will appear here...\\n\\n"
+            "Enhanced Debug Info:\\n"
+            "✓ PyQt6 is working correctly\\n"
+            "✓ GUI is responsive\\n"
+            "✓ Ready for ARXML editing\\n\\n"
+            "This version includes better error handling\\n"
+            "and troubleshooting information."
+        )
         layout.addWidget(self.text_area)
         
         # Create menu bar
         self.create_menu_bar()
         
         # Status bar
-        self.statusBar().showMessage("Debug version ready")
-        print("UI initialized successfully")
+        self.statusBar().showMessage("Enhanced debug version ready - PyQt6 working!")
+        print("Enhanced UI initialized successfully")
     
     def create_menu_bar(self):
         """Create the menu bar"""
-        print("Creating menu bar...")
+        print("Creating enhanced menu bar...")
         menubar = self.menuBar()
         
         # File menu
@@ -162,7 +259,7 @@ class DebugARXMLEditor(QMainWindow):
         about_action.triggered.connect(self.show_about)
         help_menu.addAction(about_action)
         
-        print("Menu bar created successfully")
+        print("Enhanced menu bar created successfully")
     
     def open_file(self):
         """Open an ARXML file"""
@@ -224,11 +321,14 @@ class DebugARXMLEditor(QMainWindow):
         """Show about dialog"""
         QMessageBox.about(
             self,
-            "About ARXML Editor Debug",
-            "ARXML Editor - Debug Version\\n\\n"
-            "This is a debug version that shows console output\\n"
-            "for troubleshooting purposes.\\n\\n"
-            "Version: 1.0.0-debug\\n"
+            "About ARXML Editor Enhanced Debug",
+            "ARXML Editor - Enhanced Debug Version\\n\\n"
+            "This is an enhanced debug version with:\\n"
+            "✓ Better PyQt6 error handling\\n"
+            "✓ Detailed troubleshooting information\\n"
+            "✓ Environment variable setup\\n"
+            "✓ Fallback mechanisms\\n\\n"
+            "Version: 1.0.1-enhanced\\n"
             "Built with PyQt6\\n\\n"
             "If you can see this dialog, PyQt6 is working correctly!"
         )
@@ -238,19 +338,20 @@ def main():
     try:
         print("Creating QApplication...")
         app = QApplication(sys.argv)
-        app.setApplicationName("ARXML Editor Debug")
-        app.setApplicationVersion("1.0.0")
+        app.setApplicationName("ARXML Editor Enhanced Debug")
+        app.setApplicationVersion("1.0.1")
         print("QApplication created successfully")
         
-        print("Creating main window...")
+        print("Creating enhanced main window...")
         # Create and show main window
-        window = DebugARXMLEditor()
+        window = EnhancedDebugARXMLEditor()
         window.show()
-        print("Main window shown")
+        print("Enhanced main window shown")
         
         print("Starting event loop...")
         print("=" * 50)
-        print("Application is now running. Check the console for debug info.")
+        print("Enhanced application is now running!")
+        print("Check the console for detailed debug information.")
         print("=" * 50)
         # Run the application
         sys.exit(app.exec())
@@ -265,11 +366,11 @@ if __name__ == "__main__":
     main()
 '''
     
-    with open(package_dir / "main_debug.py", 'w', encoding='utf-8') as f:
+    with open(package_dir / "main_enhanced_debug.py", 'w', encoding='utf-8') as f:
         f.write(main_script)
     
-    # Create debug PyInstaller spec
-    print("Creating debug PyInstaller spec...")
+    # Create enhanced PyInstaller spec
+    print("Creating enhanced PyInstaller spec...")
     spec_content = '''# -*- mode: python ; coding: utf-8 -*-
 
 import os
@@ -281,18 +382,20 @@ project_root = Path.cwd()
 
 block_cipher = None
 
-# Collect PyQt6 binaries and data files
+# Enhanced PyQt6 binary collection
 def collect_pyqt6_files():
-    """Collect PyQt6 Qt6 binaries and platform plugins"""
+    """Enhanced PyQt6 binary collection with multiple fallback strategies"""
     binaries = []
     datas = []
+    
+    print("Collecting PyQt6 files...")
     
     try:
         import PyQt6
         pyqt6_path = Path(PyQt6.__file__).parent
         print(f"PyQt6 found at: {pyqt6_path}")
         
-        # Add Qt6 DLLs from multiple possible locations
+        # Qt6 DLLs to collect
         qt6_dlls = [
             'Qt6Core.dll',
             'Qt6Gui.dll', 
@@ -303,12 +406,13 @@ def collect_pyqt6_files():
             'Qt6PrintSupport.dll',
         ]
         
-        # Try different possible locations for Qt6 DLLs
+        # Multiple possible locations for Qt6 DLLs
         possible_locations = [
             pyqt6_path / 'Qt6' / 'bin',
             pyqt6_path / 'Qt6' / 'lib',
             pyqt6_path / 'bin',
             pyqt6_path / 'lib',
+            pyqt6_path / 'Qt6' / 'DLLs',
         ]
         
         for dll in qt6_dlls:
@@ -323,7 +427,7 @@ def collect_pyqt6_files():
             if not found:
                 print(f"Warning: {dll} not found in any location")
         
-        # Add platform plugins from multiple possible locations
+        # Collect platform plugins
         possible_plugin_locations = [
             pyqt6_path / 'Qt6' / 'plugins',
             pyqt6_path / 'plugins',
@@ -335,7 +439,7 @@ def collect_pyqt6_files():
                 print(f"Found plugins at {plugins_path}")
                 break
         
-        # Add Qt6 libraries from multiple possible locations
+        # Collect Qt6 libraries
         possible_lib_locations = [
             pyqt6_path / 'Qt6' / 'lib',
             pyqt6_path / 'lib',
@@ -351,14 +455,14 @@ def collect_pyqt6_files():
         print(f"Warning: PyQt6 not found: {e}")
         print("Skipping Qt6 binary collection")
     
+    print(f"Collected {len(binaries)} binaries and {len(datas)} data directories")
     return binaries, datas
 
 # Collect PyQt6 files
 pyqt6_binaries, pyqt6_datas = collect_pyqt6_files()
-print(f"Collected {len(pyqt6_binaries)} PyQt6 binaries and {len(pyqt6_datas)} data directories")
 
 a = Analysis(
-    ['main_debug.py'],
+    ['main_enhanced_debug.py'],
     pathex=[str(project_root)],
     binaries=pyqt6_binaries,
     datas=[
@@ -384,7 +488,7 @@ a = Analysis(
         'PyQt6.Qt6.plugins.platforms.qoffscreen',
         'PyQt6.Qt6.plugins.styles',
         'PyQt6.Qt6.plugins.imageformats',
-        # Additional PyQt6 modules that might be needed
+        # Additional PyQt6 modules
         'PyQt6.Qt6.QtCore',
         'PyQt6.Qt6.QtGui',
         'PyQt6.Qt6.QtWidgets',
@@ -408,7 +512,7 @@ a = Analysis(
     ],
     hookspath=[],
     hooksconfig={},
-    runtime_hooks=['pyqt6_runtime_hook.py'],
+    runtime_hooks=[],
     excludes=[
         'tkinter',
         'unittest',
@@ -434,7 +538,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='ARXMLEditor_Debug',
+    name='ARXMLEditor_Enhanced_Debug',
     debug=True,  # Enable debug mode
     bootloader_ignore_signals=False,
     strip=False,
@@ -451,58 +555,15 @@ exe = EXE(
 )
 '''
     
-    with open(package_dir / "ARXMLEditor_Debug.spec", 'w', encoding='utf-8') as f:
+    with open(package_dir / "ARXMLEditor_Enhanced_Debug.spec", 'w', encoding='utf-8') as f:
         f.write(spec_content)
     
-    # Create PyQt6 runtime hook
-    print("Creating PyQt6 runtime hook...")
-    runtime_hook = '''"""
-PyQt6 Runtime Hook for PyInstaller
-This hook helps with PyQt6 DLL loading on Windows
-"""
-
-import os
-import sys
-from pathlib import Path
-
-def hook():
-    """Runtime hook to help with PyQt6 loading"""
-    if hasattr(sys, '_MEIPASS'):
-        # We're running from a PyInstaller bundle
-        meipass = Path(sys._MEIPASS)
-        
-        # Add Qt6 bin directory to PATH
-        qt6_bin = meipass / 'Qt6' / 'bin'
-        if qt6_bin.exists():
-            current_path = os.environ.get('PATH', '')
-            os.environ['PATH'] = str(qt6_bin) + os.pathsep + current_path
-            print(f"Added Qt6 bin to PATH: {qt6_bin}")
-        
-        # Set Qt6 plugin path
-        qt6_plugins = meipass / 'Qt6' / 'plugins'
-        if qt6_plugins.exists():
-            os.environ['QT_PLUGIN_PATH'] = str(qt6_plugins)
-            print(f"Set QT_PLUGIN_PATH: {qt6_plugins}")
-        
-        # Set Qt6 library path
-        qt6_lib = meipass / 'Qt6' / 'lib'
-        if qt6_lib.exists():
-            os.environ['QT_LIBRARY_PATH'] = str(qt6_lib)
-            print(f"Set QT_LIBRARY_PATH: {qt6_lib}")
-
-# Call the hook when this module is imported
-hook()
-'''
-    
-    with open(package_dir / "pyqt6_runtime_hook.py", 'w', encoding='utf-8') as f:
-        f.write(runtime_hook)
-    
-    # Create debug build script
-    print("Creating debug build script...")
+    # Create enhanced build script
+    print("Creating enhanced build script...")
     build_script = '''@echo off
-REM Debug ARXML Editor - Windows Build Script
+REM Enhanced Debug ARXML Editor - Windows Build Script
 echo ========================================
-echo ARXML Editor - Debug Windows Build
+echo ARXML Editor - Enhanced Debug Windows Build
 echo ========================================
 echo.
 
@@ -517,24 +578,56 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo Python found. Starting debug build...
+echo Python found. Starting enhanced debug build...
 echo.
 
-REM Install requirements
-echo Installing requirements...
-echo Installing PyQt6 and dependencies...
+REM Install requirements with enhanced error checking
+echo Installing requirements with enhanced error checking...
 python -m pip install --upgrade pip
+if errorlevel 1 (
+    echo ERROR: Failed to upgrade pip
+    pause
+    exit /b 1
+)
+
+echo Installing PyQt6 and dependencies...
 python -m pip install PyQt6 PyQt6-Qt6 PyQt6-sip
+if errorlevel 1 (
+    echo ERROR: Failed to install PyQt6
+    echo Please check your internet connection and try again
+    pause
+    exit /b 1
+)
+
+echo Installing other dependencies...
 python -m pip install lxml xmlschema pyinstaller pywin32
+if errorlevel 1 (
+    echo ERROR: Failed to install other dependencies
+    pause
+    exit /b 1
+)
 
 REM Verify PyQt6 installation
 echo.
 echo Verifying PyQt6 installation...
 python -c "import PyQt6; print('PyQt6 version:', PyQt6.QtCore.PYQT_VERSION_STR)"
+if errorlevel 1 (
+    echo ERROR: PyQt6 verification failed
+    pause
+    exit /b 1
+)
+
 python -c "from PyQt6.QtCore import Qt; print('Qt version:', Qt.PYQT_VERSION_STR)"
+if errorlevel 1 (
+    echo ERROR: Qt verification failed
+    pause
+    exit /b 1
+)
+
+echo PyQt6 verification successful!
+echo.
 
 REM Clean previous builds
-echo.
 echo Cleaning previous builds...
 if exist "build" rmdir /s /q "build"
 if exist "dist" rmdir /s /q "dist"
@@ -542,12 +635,12 @@ if exist "__pycache__" rmdir /s /q "__pycache__"
 
 REM Build executable
 echo.
-echo Building debug Windows executable...
-echo This will show console output for debugging...
-python -m PyInstaller ARXMLEditor_Debug.spec --clean --noconfirm
+echo Building enhanced debug Windows executable...
+echo This will show detailed console output for debugging...
+python -m PyInstaller ARXMLEditor_Enhanced_Debug.spec --clean --noconfirm
 
 REM Check if build was successful
-if not exist "dist\\ARXMLEditor_Debug.exe" (
+if not exist "dist\\ARXMLEditor_Enhanced_Debug.exe" (
     echo.
     echo ERROR: Build failed! Executable not found.
     echo Please check the error messages above.
@@ -558,93 +651,96 @@ if not exist "dist\\ARXMLEditor_Debug.exe" (
 
 echo.
 echo ========================================
-echo DEBUG BUILD SUCCESSFUL!
+echo ENHANCED DEBUG BUILD SUCCESSFUL!
 echo ========================================
 echo.
-echo Executable created: dist\\ARXMLEditor_Debug.exe
+echo Executable created: dist\\ARXMLEditor_Enhanced_Debug.exe
 echo.
 
 REM Create release folder
 if not exist "release" mkdir "release"
-copy "dist\\ARXMLEditor_Debug.exe" "release\\"
+copy "dist\\ARXMLEditor_Enhanced_Debug.exe" "release\\"
 if exist "arxml_editor.ico" copy "arxml_editor.ico" "release\\"
 
 echo.
-echo Debug ARXML Editor built successfully!
-echo The executable will show console output for debugging.
+echo Enhanced Debug ARXML Editor built successfully!
+echo The executable includes better error handling and troubleshooting.
 echo Check the 'release' folder for the executable.
 echo.
 pause
 '''
     
-    with open(package_dir / "BUILD_DEBUG.bat", 'w', encoding='utf-8') as f:
+    with open(package_dir / "BUILD_ENHANCED_DEBUG.bat", 'w', encoding='utf-8') as f:
         f.write(build_script)
     
-    # Create README
-    print("Creating README...")
-    readme_content = '''# ARXML Editor - Debug Windows Version
+    # Create enhanced README
+    print("Creating enhanced README...")
+    readme_content = '''# ARXML Editor - Enhanced Debug Windows Version
 
-This is a debug version of the ARXML Editor designed for troubleshooting Windows builds.
+This is an enhanced debug version of the ARXML Editor designed for troubleshooting Windows builds with better PyQt6 support.
 
 ## Features
 
+- **Enhanced Error Handling**: Better PyQt6 error detection and reporting
+- **Detailed Troubleshooting**: Comprehensive error information and solutions
+- **Environment Setup**: Automatic Qt6 environment variable configuration
+- **Fallback Mechanisms**: Multiple strategies for PyQt6 loading
 - **Console Output**: Shows detailed debug information
-- **Error Reporting**: Displays errors and stack traces
-- **Step-by-Step Logging**: Shows what's happening during startup
 - **Basic ARXML Editing**: Open, edit, and save ARXML files
 - **Debug Mode**: PyInstaller debug mode enabled
 
 ## Quick Start
 
-1. **Run the build script**: Double-click `BUILD_DEBUG.bat`
+1. **Run the build script**: Double-click `BUILD_ENHANCED_DEBUG.bat`
 2. **Wait for completion**: The build process will take a few minutes
-3. **Run the executable**: Look in the `release` folder for `ARXMLEditor_Debug.exe`
-4. **Check console output**: The executable will show debug information
+3. **Run the executable**: Look in the `release` folder for `ARXMLEditor_Enhanced_Debug.exe`
+4. **Check console output**: The executable will show detailed debug information
 
-## Debug Information
+## Enhanced Debug Information
 
-The debug version will show:
+The enhanced debug version will show:
 - Python version and executable path
-- Import status of PyQt6
+- PyQt6 import status with detailed error reporting
+- Environment variable setup
 - UI initialization steps
 - File operations
-- Error messages and stack traces
+- Comprehensive error messages and solutions
+
+## Troubleshooting
+
+### If PyQt6 import fails:
+The enhanced version will show detailed error information including:
+- Specific error type and message
+- Environment variable status
+- PyInstaller bundle information
+- Suggested solutions
+
+### Common solutions:
+1. **Install Visual C++ Redistributable**: Download from Microsoft
+2. **Check architecture**: Ensure 64-bit Python and 64-bit PyQt6
+3. **Reinstall PyQt6**: `pip uninstall PyQt6 PyQt6-Qt6 PyQt6-sip` then `pip install PyQt6 PyQt6-Qt6 PyQt6-sip`
+4. **Rebuild**: Run `BUILD_ENHANCED_DEBUG.bat` again
 
 ## System Requirements
 
 - Windows 10 or Windows 11
 - Python 3.9 or higher
+- Visual C++ Redistributable for Visual Studio 2015-2022
 - 2GB RAM minimum
 - 1GB free disk space
 
-## Troubleshooting
-
-### If the executable doesn't start:
-1. Check the console output for error messages
-2. Ensure PyQt6 is installed correctly
-3. Try running from command prompt to see full output
-
-### If you see import errors:
-- PyQt6 might not be installed: `pip install PyQt6`
-- Missing dependencies: Check the console output
-
-### If the GUI doesn't appear:
-- Check Windows display settings
-- Try running as Administrator
-- Check for antivirus interference
-
 ## Support
 
-This debug version is designed to help identify issues.
-Use the console output to diagnose problems.
+This enhanced debug version is designed to help identify and resolve PyQt6 issues.
+Use the detailed console output to diagnose problems and follow the suggested solutions.
 '''
     
-    with open(package_dir / "README_DEBUG.md", 'w', encoding='utf-8') as f:
+    with open(package_dir / "README_ENHANCED_DEBUG.md", 'w', encoding='utf-8') as f:
         f.write(readme_content)
     
     # Create zip package
-    print("Creating zip package...")
-    zip_path = "ARXMLEditor-Windows-Debug-v1.0.0.zip"
+    print("Creating enhanced zip package...")
+    zip_path = "ARXMLEditor-Windows-Debug-Enhanced-v1.0.1.zip"
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for root, dirs, files in os.walk(package_dir):
             for file in files:
@@ -653,7 +749,7 @@ Use the console output to diagnose problems.
                 zipf.write(file_path, arc_path)
     
     print("=" * 60)
-    print("DEBUG WINDOWS BUILD PACKAGE CREATED SUCCESSFULLY!")
+    print("ENHANCED DEBUG WINDOWS BUILD PACKAGE CREATED SUCCESSFULLY!")
     print("=" * 60)
     print(f"Package directory: {package_dir}")
     print(f"Zip package: {zip_path}")
@@ -661,9 +757,9 @@ Use the console output to diagnose problems.
     print("Next steps:")
     print("1. Transfer the zip file to a Windows machine")
     print("2. Extract the zip file")
-    print("3. Run BUILD_DEBUG.bat")
-    print("4. The resulting executable will show debug output!")
+    print("3. Run BUILD_ENHANCED_DEBUG.bat")
+    print("4. The resulting executable will show enhanced debug output!")
     print("=" * 60)
 
 if __name__ == "__main__":
-    create_debug_windows_package()
+    create_enhanced_debug_windows_package()

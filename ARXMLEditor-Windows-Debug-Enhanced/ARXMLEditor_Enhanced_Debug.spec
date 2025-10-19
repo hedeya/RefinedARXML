@@ -9,18 +9,20 @@ project_root = Path.cwd()
 
 block_cipher = None
 
-# Collect PyQt6 binaries and data files
+# Enhanced PyQt6 binary collection
 def collect_pyqt6_files():
-    """Collect PyQt6 Qt6 binaries and platform plugins"""
+    """Enhanced PyQt6 binary collection with multiple fallback strategies"""
     binaries = []
     datas = []
+    
+    print("Collecting PyQt6 files...")
     
     try:
         import PyQt6
         pyqt6_path = Path(PyQt6.__file__).parent
         print(f"PyQt6 found at: {pyqt6_path}")
         
-        # Add Qt6 DLLs from multiple possible locations
+        # Qt6 DLLs to collect
         qt6_dlls = [
             'Qt6Core.dll',
             'Qt6Gui.dll', 
@@ -31,12 +33,13 @@ def collect_pyqt6_files():
             'Qt6PrintSupport.dll',
         ]
         
-        # Try different possible locations for Qt6 DLLs
+        # Multiple possible locations for Qt6 DLLs
         possible_locations = [
             pyqt6_path / 'Qt6' / 'bin',
             pyqt6_path / 'Qt6' / 'lib',
             pyqt6_path / 'bin',
             pyqt6_path / 'lib',
+            pyqt6_path / 'Qt6' / 'DLLs',
         ]
         
         for dll in qt6_dlls:
@@ -51,7 +54,7 @@ def collect_pyqt6_files():
             if not found:
                 print(f"Warning: {dll} not found in any location")
         
-        # Add platform plugins from multiple possible locations
+        # Collect platform plugins
         possible_plugin_locations = [
             pyqt6_path / 'Qt6' / 'plugins',
             pyqt6_path / 'plugins',
@@ -63,7 +66,7 @@ def collect_pyqt6_files():
                 print(f"Found plugins at {plugins_path}")
                 break
         
-        # Add Qt6 libraries from multiple possible locations
+        # Collect Qt6 libraries
         possible_lib_locations = [
             pyqt6_path / 'Qt6' / 'lib',
             pyqt6_path / 'lib',
@@ -79,14 +82,14 @@ def collect_pyqt6_files():
         print(f"Warning: PyQt6 not found: {e}")
         print("Skipping Qt6 binary collection")
     
+    print(f"Collected {len(binaries)} binaries and {len(datas)} data directories")
     return binaries, datas
 
 # Collect PyQt6 files
 pyqt6_binaries, pyqt6_datas = collect_pyqt6_files()
-print(f"Collected {len(pyqt6_binaries)} PyQt6 binaries and {len(pyqt6_datas)} data directories")
 
 a = Analysis(
-    ['main_debug.py'],
+    ['main_enhanced_debug.py'],
     pathex=[str(project_root)],
     binaries=pyqt6_binaries,
     datas=[
@@ -112,7 +115,7 @@ a = Analysis(
         'PyQt6.Qt6.plugins.platforms.qoffscreen',
         'PyQt6.Qt6.plugins.styles',
         'PyQt6.Qt6.plugins.imageformats',
-        # Additional PyQt6 modules that might be needed
+        # Additional PyQt6 modules
         'PyQt6.Qt6.QtCore',
         'PyQt6.Qt6.QtGui',
         'PyQt6.Qt6.QtWidgets',
@@ -136,7 +139,7 @@ a = Analysis(
     ],
     hookspath=[],
     hooksconfig={},
-    runtime_hooks=['pyqt6_runtime_hook.py'],
+    runtime_hooks=[],
     excludes=[
         'tkinter',
         'unittest',
@@ -162,7 +165,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='ARXMLEditor_Debug',
+    name='ARXMLEditor_Enhanced_Debug',
     debug=True,  # Enable debug mode
     bootloader_ignore_signals=False,
     strip=False,
