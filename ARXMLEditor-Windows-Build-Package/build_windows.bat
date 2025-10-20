@@ -25,12 +25,12 @@ for /f "tokens=2" %%i in ('python --version') do set PYTHON_VERSION=%%i
 echo Checking Python version: %PYTHON_VERSION%
 
 REM Ensure Python version is within supported range for PySide6
-REM Use simpler FOR parsing to avoid syntax issues with parentheses
+REM Use two simple FOR parses to avoid the "tokens=1,2" parsing edge case
 for /f "tokens=1 delims=." %%a in ("%PYTHON_VERSION%") do set PY_MAJOR=%%a
 for /f "tokens=2 delims=." %%a in ("%PYTHON_VERSION%") do set PY_MINOR=%%a
-if "%PY_MAJOR%"=="" (
-    set PY_MAJOR=0
-)
+if "%PY_MAJOR%"=="" set PY_MAJOR=0
+if "%PY_MINOR%"=="" set PY_MINOR=0
+rem If major is greater than 3 (e.g., Python 4.x) or major==3 and minor too new, abort
 if %PY_MAJOR% GTR 3 (
     echo ERROR: Detected Python %PYTHON_VERSION%. PySide6 currently does not support very new Python versions (e.g., 3.14).
     echo Please install Python 3.12 or 3.11 and retry, or install a PySide6 wheel compatible with your Python.

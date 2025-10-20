@@ -106,6 +106,20 @@ REM Check Python version
 for /f "tokens=2" %%i in ('python --version') do set PYTHON_VERSION=%%i
 echo Checking Python version: %PYTHON_VERSION%
 
+REM Ensure Python version is within supported range for PySide6
+REM Use two simple FOR parses to avoid the "tokens=1,2" parsing edge case
+for /f "tokens=1 delims=." %%a in ("%PYTHON_VERSION%") do set PY_MAJOR=%%a
+for /f "tokens=2 delims=." %%a in ("%PYTHON_VERSION%") do set PY_MINOR=%%a
+if "%PY_MAJOR%"=="" set PY_MAJOR=0
+if "%PY_MINOR%"=="" set PY_MINOR=0
+rem If major is greater than 3 (e.g., Python 4.x) or major==3 and minor too new, abort
+if %PY_MAJOR% GTR 3 (
+    echo ERROR: Detected Python %PYTHON_VERSION%. PySide6 currently does not support very new Python versions (e.g., 3.14).
+    echo Please install Python 3.12 or 3.11 and retry, or install a PySide6 wheel compatible with your Python.
+    pause
+    exit /b 1
+)
+
 REM Install/upgrade pip
 echo.
 echo Installing/upgrading pip...
@@ -188,6 +202,15 @@ try {
 }
 
 Write-Host ""
+Write-Host "Checking Python version compatibility..." -ForegroundColor Yellow
+$pyVerParts = ($pythonVersion -split ' ')[-1] -split '\.'
+if ($pyVerParts[0] -gt 3) {
+    Write-Host "ERROR: Detected Python $($pyVerParts -join '.') which is newer than supported by PySide6." -ForegroundColor Red
+    Write-Host "Please install Python 3.12 or 3.11 and retry." -ForegroundColor Red
+    Read-Host "Press Enter to exit"
+    exit 1
+}
+
 Write-Host "Installing/upgrading pip..." -ForegroundColor Yellow
 python -m pip install --upgrade pip
 
@@ -229,7 +252,7 @@ Write-Host ""
 
 # Create release package
 Write-Host "Creating release package..." -ForegroundColor Yellow
-& ".\create_release_package.bat"
+& ".\\create_release_package.bat"
 
 Write-Host ""
 Write-Host "Build completed successfully!" -ForegroundColor Green
@@ -253,8 +276,12 @@ import os
 import sys
 from pathlib import Path
 
-# Get the project root directory
-project_root = Path(__file__).parent
+# Get the project root directory. When PyInstaller executes a spec, __file__ may not be
+# defined. Fall back to the current working directory in that case.
+try:
+    project_root = Path(__file__).parent
+except NameError:
+    project_root = Path('.').resolve()
 
 block_cipher = None
 

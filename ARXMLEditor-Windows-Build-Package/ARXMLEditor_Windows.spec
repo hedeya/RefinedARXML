@@ -8,9 +8,8 @@ import os
 import sys
 from pathlib import Path
 
-# Get the project root directory. PyInstaller executes spec code in a
-# context where __file__ may not be defined, so fall back to the current
-# working directory when needed.
+# Get the project root directory. When PyInstaller executes a spec, __file__ may not be
+# defined. Fall back to the current working directory in that case.
 try:
     project_root = Path(__file__).parent
 except NameError:
