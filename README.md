@@ -266,3 +266,31 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Performance profiling and optimization
 - [ ] Multi-language support
 - [ ] Cloud-based collaboration features
+
+## Running the app (quick guide)
+
+Recommended: run the package as a module so Python resolves package imports correctly:
+
+```bash
+python3 -m arxml_editor.main
+```
+
+If you prefer to run the script directly during development from the repository root, the code includes a fallback import mode that may allow:
+
+```bash
+python3 arxml_editor/main.py
+```
+
+Dependencies: install the project's requirements (preferably inside a virtualenv):
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+If you only need the GUI runtime, install PySide6 directly:
+
+```bash
+pip install PySide6
+```
