@@ -22,12 +22,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
+        working-directory: ARXMLEditor-Windows-Build-Package
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements_windows.txt
           python -m pip install pyinstaller
 
       - name: Build with PyInstaller
+        working-directory: ARXMLEditor-Windows-Build-Package
         run: |
           pyinstaller ARXMLEditor_Windows.spec --clean --noconfirm
 
@@ -35,7 +37,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ARXMLEditor-windows-exe
-          path: dist/ARXMLEditor.exe
+          path: ARXMLEditor-Windows-Build-Package/dist/ARXMLEditor.exe
 
       - name: Create or update GitHub release and upload asset (on tag)
         if: startsWith(github.ref, 'refs/tags/')
@@ -43,8 +45,10 @@ jobs:
           echo "Release tag: $GITHUB_REF"
           TAG_NAME=${GITHUB_REF#refs/tags/}
           echo "Using tag: $TAG_NAME"
-          # Create release if it does not exist, otherwise update
+          pushd ARXMLEditor-Windows-Build-Package
+          # Create release if it does not exist, otherwise upload/replace the asset
           gh release create "$TAG_NAME" dist/ARXMLEditor.exe --title "$TAG_NAME" --notes "Automated Windows build for $TAG_NAME" || \
             (echo "Release may already exist, attempting to upload asset" && gh release upload "$TAG_NAME" dist/ARXMLEditor.exe --clobber)
+          popd
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
