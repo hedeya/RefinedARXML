@@ -2,7 +2,6 @@
 Tests for ARXML model functionality.
 """
 
-import pytest
 import tempfile
 from pathlib import Path
 from arxml_editor.core.arxml_model import ARXMLModel
@@ -248,4 +247,25 @@ class TestARXMLModel:
 
 
 if __name__ == "__main__":
-    pytest.main([__file__])
+    # Simple test runner
+    test_instance = TestARXMLModel()
+    test_methods = [method for method in dir(test_instance) if method.startswith('test_')]
+    
+    passed = 0
+    failed = 0
+    
+    print(f"Running {len(test_methods)} tests...")
+    print("=" * 50)
+    
+    for test_method in test_methods:
+        print(f"Running {test_method}...", end=" ")
+        try:
+            getattr(test_instance, test_method)()
+            print("PASSED")
+            passed += 1
+        except Exception as e:
+            print(f"FAILED: {e}")
+            failed += 1
+    
+    print("=" * 50)
+    print(f"Results: {passed} passed, {failed} failed")

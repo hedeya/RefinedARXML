@@ -50,9 +50,17 @@ class PackageTreeWidget(QWidget):
         # Configure header
         header = self.tree_widget.header()
         header.setStretchLastSection(False)
-        header.setSectionResizeMode(0, QHeaderView.Stretch)
+        # Allow the user to resize the 'Name' column interactively instead
+        # of forcing it to always stretch. This enables moving the separator
+        # between 'Name' and 'Type' to adjust column allocation.
+        header.setSectionResizeMode(0, QHeaderView.Interactive)
         header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        # Allow moving columns if desired
+        try:
+            header.setSectionsMovable(True)
+        except Exception:
+            pass
         
         layout.addWidget(self.tree_widget)
         

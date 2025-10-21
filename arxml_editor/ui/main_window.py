@@ -5,6 +5,7 @@ Provides the main application interface with dockable panels and menu system.
 """
 
 import sys
+import logging
 from pathlib import Path
 from typing import Optional, List
 from PySide6.QtWidgets import (
@@ -18,6 +19,7 @@ from PySide6.QtGui import QAction, QIcon, QKeySequence
 from .package_tree import PackageTreeWidget
 from .property_editor import PropertyEditorWidget
 from .diagram_view import DiagramViewWidget
+from .hierarchy_view import HierarchyViewWidget
 from .validation_panel import ValidationPanelWidget
 from ..core.arxml_model import ARXMLModel
 from ..core.schema_manager import AUTOSARRelease
@@ -46,7 +48,7 @@ class MainWindow(QMainWindow):
         
         # Set window properties
         self.setWindowTitle("ARXML Editor")
-        self.setGeometry(100, 100, 1400, 900)
+        self._setup_window_geometry()
         
         # Show welcome message
         self._show_welcome_message()
@@ -87,11 +89,19 @@ class MainWindow(QMainWindow):
         # Property editor (center)
         self.property_editor = PropertyEditorWidget(self.arxml_model)
         
-        # Diagram view (right)
+        # Diagram view (right) - hidden by default
         self.diagram_view = DiagramViewWidget(self.arxml_model)
         self.diagram_dock = QDockWidget("Diagram View", self)
         self.diagram_dock.setWidget(self.diagram_view)
         self.addDockWidget(Qt.RightDockWidgetArea, self.diagram_dock)
+        self.diagram_dock.hide()  # Hide by default
+        
+        # Hierarchy view (additional dock) - moved to left for easier navigation
+        self.hierarchy_view = HierarchyViewWidget(self.arxml_model)
+        self.hierarchy_dock = QDockWidget("Hierarchy View", self)
+        self.hierarchy_dock.setWidget(self.hierarchy_view)
+        # Place hierarchy dock on the left alongside the package tree
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.hierarchy_dock)
         
         # Validation panel (bottom)
         self.validation_panel = ValidationPanelWidget(self.arxml_model)
@@ -109,6 +119,9 @@ class MainWindow(QMainWindow):
         self.package_tree.element_selected.connect(self._on_element_selected)
         self.element_selected.connect(self.property_editor.set_element)
         self.element_selected.connect(self.diagram_view.set_element)
+        self.element_selected.connect(self.hierarchy_view.set_element)
+        
+        # Diagram toggle actions are already connected in their creation
         
         # Validation
         self.validation_completed.connect(self.validation_panel.update_errors)
@@ -194,7 +207,15 @@ class MainWindow(QMainWindow):
         
         # Toggle dock widgets
         view_menu.addAction(self.package_tree_dock.toggleViewAction())
-        view_menu.addAction(self.diagram_dock.toggleViewAction())
+        
+        # Diagram view toggle with custom action
+        self.diagram_toggle_action = QAction("&Diagram View", self)
+        self.diagram_toggle_action.setCheckable(True)
+        self.diagram_toggle_action.setChecked(False)
+        self.diagram_toggle_action.triggered.connect(self._sync_diagram_toggle)
+        view_menu.addAction(self.diagram_toggle_action)
+        
+        view_menu.addAction(self.hierarchy_dock.toggleViewAction())
         view_menu.addAction(self.validation_dock.toggleViewAction())
         
         # Tools menu
@@ -238,6 +259,14 @@ class MainWindow(QMainWindow):
         
         # View operations
         toolbar.addAction(self._create_action("Find", "edit-find", self._show_find_dialog))
+        
+        toolbar.addSeparator()
+        
+        # Diagram view toggle
+        self.diagram_toolbar_action = self._create_action("Diagram View", "view-preview", self._sync_diagram_toggle)
+        self.diagram_toolbar_action.setCheckable(True)
+        self.diagram_toolbar_action.setChecked(False)
+        toolbar.addAction(self.diagram_toolbar_action)
     
     def _setup_status_bar(self):
         """Set up status bar."""
@@ -310,10 +339,44 @@ class MainWindow(QMainWindow):
         if file_path:
             self._save_to_file(Path(file_path), target_schema)
     
-    def _load_file(self, file_path: Path):
-        """Load ARXML file."""
+    def _load_file(self, file_path: Path, validate_first: bool = True):
+        """Load ARXML file.
+
+        validate_first: when True perform a lightweight well-formedness check
+        before launching the background load thread. This avoids attempting
+        to fully parse obviously malformed files at startup and produces a
+        gentler warning instead of a blocking critical dialog.
+        """
         self._show_progress("Loading file...")
-        
+
+        # Optional lightweight validation to catch common parse errors early
+        if validate_first:
+            try:
+                import xml.etree.ElementTree as ET
+                # Use iterparse to quickly check basic well-formedness without
+                # building the full tree in the main thread.
+                iterator = ET.iterparse(str(file_path), events=("start",))
+                # consume one event to trigger any ParseError early
+                next(iterator, None)
+            except ET.ParseError as pe:
+                logging.getLogger(__name__).warning(
+                    "Quick-parse failed for %s: %s", file_path, pe
+                )
+                self._hide_progress()
+                # Show a non-fatal warning and avoid starting the heavy load
+                self.status_bar.showMessage(f"Failed to load (not well-formed): {file_path.name}", 8000)
+                QMessageBox.warning(
+                    self,
+                    "Invalid ARXML",
+                    f"File is not well-formed XML and was not loaded:\n{file_path}\n\nParse error: {pe}"
+                )
+                return
+            except Exception as e:
+                # Any IO or unexpected error should be logged but not crash
+                logging.getLogger(__name__).warning(
+                    "Could not pre-validate file %s: %s", file_path, e
+                )
+
         # Load in background thread to avoid UI freezing
         self.load_thread = LoadFileThread(file_path, self.arxml_model)
         self.load_thread.file_loaded.connect(self._on_file_loaded)
@@ -324,6 +387,9 @@ class MainWindow(QMainWindow):
         """Save model to file."""
         self._show_progress("Saving file...")
         
+        # Check if this is a Save As operation (different from current file)
+        is_save_as = self.current_file != file_path
+        
         success = self.arxml_model.save_file(file_path, target_schema)
         self._hide_progress()
         
@@ -333,7 +399,12 @@ class MainWindow(QMainWindow):
             self._update_window_title()
             self._update_status_bar()
             self.file_saved.emit(str(file_path))
-            self.status_bar.showMessage(f"File saved: {file_path.name}", 3000)
+            
+            # Show appropriate status message
+            if is_save_as:
+                self.status_bar.showMessage(f"File saved as: {file_path.name}", 5000)
+            else:
+                self.status_bar.showMessage(f"File saved: {file_path.name}", 3000)
         else:
             QMessageBox.critical(self, "Save Error", f"Failed to save file: {file_path}")
     
@@ -346,16 +417,40 @@ class MainWindow(QMainWindow):
             self.is_modified = False
             self._update_window_title()
             self._update_status_bar()
+            # Refresh package tree so UI widgets have the latest model
             self.package_tree.refresh()
+
+            # If nothing is selected yet, preselect the first root element so
+            # the property editor, diagram and hierarchy panes populate on load.
+            try:
+                current_selected = self.package_tree.get_selected_element()
+                if not current_selected:
+                    all_elements = self.arxml_model.element_index.get_all_elements()
+                    # Root elements have no parent_path or an empty parent_path
+                    root_elements = [e for e in all_elements if not e.parent_path]
+                    if root_elements:
+                        # Choose the first root element (stable ordering not guaranteed)
+                        root_path = root_elements[0].path
+                        self.package_tree.expand_to_path(root_path)
+            except Exception:
+                # Be defensive: do not let UI population errors break loading
+                logging.getLogger(__name__).exception("Failed to preselect root element")
+
             self.file_opened.emit(str(file_path))
             self.status_bar.showMessage(f"File loaded: {file_path.name}", 3000)
         else:
-            QMessageBox.critical(self, "Load Error", f"Failed to load file: {file_path}")
+            # Show a non-fatal warning for load failures (parsing/indexing issues)
+            logging.getLogger(__name__).warning("Failed to load file: %s", file_path)
+            self.status_bar.showMessage(f"Failed to load file: {file_path.name}", 5000)
+            QMessageBox.warning(self, "Load Error", f"Failed to load file: {file_path}")
     
     def _on_load_error(self, error_message: str):
         """Handle load error."""
         self._hide_progress()
-        QMessageBox.critical(self, "Load Error", error_message)
+        # Log and display a non-fatal warning so startup isn't blocked by a modal
+        logging.getLogger(__name__).warning("Load error: %s", error_message)
+        self.status_bar.showMessage("Error loading file", 5000)
+        QMessageBox.warning(self, "Load Error", error_message)
     
     def _on_file_opened(self, file_path: str):
         """Handle file opened signal."""
@@ -368,6 +463,71 @@ class MainWindow(QMainWindow):
     def _on_element_selected(self, path: str):
         """Handle element selection."""
         self.element_selected.emit(path)
+    
+    def _toggle_diagram_view(self):
+        """Toggle diagram view visibility."""
+        if self.diagram_dock.isVisible():
+            self.diagram_dock.hide()
+            self.diagram_toggle_action.setChecked(False)
+            self.diagram_toolbar_action.setChecked(False)
+        else:
+            self.diagram_dock.show()
+            self.diagram_toggle_action.setChecked(True)
+            self.diagram_toolbar_action.setChecked(True)
+    
+    def _sync_diagram_toggle(self):
+        """Sync diagram toggle actions between menu and toolbar."""
+        is_checked = self.sender().isChecked()
+        self.diagram_toggle_action.setChecked(is_checked)
+        self.diagram_toolbar_action.setChecked(is_checked)
+        
+        if is_checked:
+            self.diagram_dock.show()
+        else:
+            self.diagram_dock.hide()
+    
+    def _setup_window_geometry(self):
+        """Set up window geometry with multi-monitor support."""
+        try:
+            # Get available screens
+            screens = QApplication.screens()
+            if len(screens) > 1:
+                # Use the primary screen
+                primary_screen = QApplication.primaryScreen()
+                screen_geometry = primary_screen.availableGeometry()
+                
+                # Set window size based on screen size
+                width = min(1400, screen_geometry.width() - 100)
+                height = min(900, screen_geometry.height() - 100)
+                x = screen_geometry.x() + 50
+                y = screen_geometry.y() + 50
+                
+                self.setGeometry(x, y, width, height)
+            else:
+                # Single screen - use default geometry
+                self.setGeometry(100, 100, 1400, 900)
+                
+        except Exception as e:
+            # Fallback to default geometry
+            self.setGeometry(100, 100, 1400, 900)
+    
+    def changeEvent(self, event):
+        """Handle window state changes."""
+        from PySide6.QtCore import QEvent
+        
+        if event.type() == QEvent.WindowStateChange:
+            # Handle window state changes (maximize, minimize, etc.)
+            try:
+                # Ensure the window is properly positioned after state changes
+                if self.isMaximized():
+                    # Window is maximized - ensure it's visible
+                    self.raise_()
+                    self.activateWindow()
+            except Exception:
+                # Ignore errors during state changes
+                pass
+        
+        super().changeEvent(event)
     
     def _validate_model(self):
         """Validate the current model."""
