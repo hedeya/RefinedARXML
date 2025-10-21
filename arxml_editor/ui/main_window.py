@@ -55,59 +55,91 @@ class MainWindow(QMainWindow):
     
     def _setup_ui(self):
         """Set up the main UI layout."""
-        # Central widget
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        
-        # Main layout
-        main_layout = QHBoxLayout(central_widget)
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        
-        # Create splitter for resizable panels
-        self.splitter = QSplitter(Qt.Horizontal)
-        main_layout.addWidget(self.splitter)
-        
-        # Create dockable widgets
+        # Create dockable widgets first
         self._create_dock_widgets()
         
-        # Add widgets to splitter
-        self.splitter.addWidget(self.package_tree)
-        self.splitter.addWidget(self.property_editor)
-        self.splitter.addWidget(self.diagram_view)
+        # Create main vertical splitter for top and bottom areas
+        main_vertical_splitter = QSplitter(Qt.Vertical)
+        self.setCentralWidget(main_vertical_splitter)
         
-        # Set splitter proportions
-        self.splitter.setSizes([300, 400, 700])
+        # Create horizontal splitter for left, center, and right panels
+        main_horizontal_splitter = QSplitter(Qt.Horizontal)
+        
+        # Create left vertical splitter for package tree and hierarchy view
+        left_vertical_splitter = QSplitter(Qt.Vertical)
+        left_vertical_splitter.addWidget(self.package_tree)
+        left_vertical_splitter.addWidget(self.hierarchy_view)
+        left_vertical_splitter.setSizes([400, 300])  # Package tree gets more space initially
+        
+        # Add left panels to main horizontal splitter
+        main_horizontal_splitter.addWidget(left_vertical_splitter)
+        main_horizontal_splitter.addWidget(self.property_editor)
+        main_horizontal_splitter.addWidget(self.diagram_view)
+        
+        # Ensure widgets are visible after being added to splitters
+        self.package_tree.setVisible(True)
+        self.hierarchy_view.setVisible(True)
+        self.property_editor.setVisible(True)
+        self.diagram_view.setVisible(True)
+        
+        # Set horizontal splitter proportions
+        main_horizontal_splitter.setSizes([300, 500, 400])
+        
+        # Add horizontal splitter to main vertical splitter
+        main_vertical_splitter.addWidget(main_horizontal_splitter)
+        main_vertical_splitter.addWidget(self.validation_panel)
+        
+        # Ensure validation panel is visible
+        self.validation_panel.setVisible(True)
+        
+        # Set vertical splitter proportions (main area gets most space)
+        main_vertical_splitter.setSizes([800, 200])
+        
+        # Store references to splitters for later use
+        self.main_vertical_splitter = main_vertical_splitter
+        self.main_horizontal_splitter = main_horizontal_splitter
+        self.left_vertical_splitter = left_vertical_splitter
+        
+        # Configure splitters for better resizing experience
+        self._configure_splitters()
     
     def _create_dock_widgets(self):
-        """Create dockable widgets."""
-        # Package tree (left dock)
+        """Create widgets for the resizable layout."""
+        # Package tree (left panel)
         self.package_tree = PackageTreeWidget(self.arxml_model)
-        self.package_tree_dock = QDockWidget("AR Packages", self)
-        self.package_tree_dock.setWidget(self.package_tree)
-        self.addDockWidget(Qt.LeftDockWidgetArea, self.package_tree_dock)
         
-        # Property editor (center)
+        # Property editor (center panel)
         self.property_editor = PropertyEditorWidget(self.arxml_model)
         
-        # Diagram view (right) - hidden by default
+        # Diagram view (right panel) - visible by default in new layout
         self.diagram_view = DiagramViewWidget(self.arxml_model)
-        self.diagram_dock = QDockWidget("Diagram View", self)
-        self.diagram_dock.setWidget(self.diagram_view)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.diagram_dock)
-        self.diagram_dock.hide()  # Hide by default
         
-        # Hierarchy view (additional dock) - moved to left for easier navigation
+        # Hierarchy view (left bottom panel)
         self.hierarchy_view = HierarchyViewWidget(self.arxml_model)
-        self.hierarchy_dock = QDockWidget("Hierarchy View", self)
-        self.hierarchy_dock.setWidget(self.hierarchy_view)
-        # Place hierarchy dock on the left alongside the package tree
-        self.addDockWidget(Qt.LeftDockWidgetArea, self.hierarchy_dock)
         
-        # Validation panel (bottom)
+        # Validation panel (bottom panel)
         self.validation_panel = ValidationPanelWidget(self.arxml_model)
-        self.validation_dock = QDockWidget("Validation", self)
-        self.validation_dock.setWidget(self.validation_panel)
-        self.addDockWidget(Qt.BottomDockWidgetArea, self.validation_dock)
+    
+    def _configure_splitters(self):
+        """Configure splitters for optimal resizing experience."""
+        # Enable collapsible sections
+        self.main_vertical_splitter.setChildrenCollapsible(True)
+        self.main_horizontal_splitter.setChildrenCollapsible(True)
+        self.left_vertical_splitter.setChildrenCollapsible(True)
+        
+        # Set minimum sizes for panels
+        self.package_tree.setMinimumSize(200, 150)
+        self.hierarchy_view.setMinimumSize(200, 150)
+        self.property_editor.setMinimumSize(300, 200)
+        self.diagram_view.setMinimumSize(250, 200)
+        self.validation_panel.setMinimumSize(400, 100)
+        
+        # Set maximum sizes to prevent panels from becoming too large
+        self.package_tree.setMaximumSize(600, 800)
+        self.hierarchy_view.setMaximumSize(600, 600)
+        self.property_editor.setMaximumSize(1000, 1200)
+        self.diagram_view.setMaximumSize(800, 1200)
+        self.validation_panel.setMaximumSize(2000, 400)
     
     def _setup_connections(self):
         """Set up signal connections."""
@@ -205,18 +237,40 @@ class MainWindow(QMainWindow):
         # View menu
         view_menu = menubar.addMenu("&View")
         
-        # Toggle dock widgets
-        view_menu.addAction(self.package_tree_dock.toggleViewAction())
+        # Panel visibility toggles
+        self.package_tree_toggle_action = QAction("&Package Tree", self)
+        self.package_tree_toggle_action.setCheckable(True)
+        self.package_tree_toggle_action.setChecked(True)
+        self.package_tree_toggle_action.triggered.connect(self._toggle_package_tree)
+        view_menu.addAction(self.package_tree_toggle_action)
         
-        # Diagram view toggle with custom action
+        # Diagram view toggle
         self.diagram_toggle_action = QAction("&Diagram View", self)
         self.diagram_toggle_action.setCheckable(True)
-        self.diagram_toggle_action.setChecked(False)
+        self.diagram_toggle_action.setChecked(True)  # Now visible by default
         self.diagram_toggle_action.triggered.connect(self._sync_diagram_toggle)
         view_menu.addAction(self.diagram_toggle_action)
         
-        view_menu.addAction(self.hierarchy_dock.toggleViewAction())
-        view_menu.addAction(self.validation_dock.toggleViewAction())
+        # Hierarchy view toggle
+        self.hierarchy_toggle_action = QAction("&Hierarchy View", self)
+        self.hierarchy_toggle_action.setCheckable(True)
+        self.hierarchy_toggle_action.setChecked(True)
+        self.hierarchy_toggle_action.triggered.connect(self._toggle_hierarchy_view)
+        view_menu.addAction(self.hierarchy_toggle_action)
+        
+        # Validation panel toggle
+        self.validation_toggle_action = QAction("&Validation Panel", self)
+        self.validation_toggle_action.setCheckable(True)
+        self.validation_toggle_action.setChecked(True)
+        self.validation_toggle_action.triggered.connect(self._toggle_validation_panel)
+        view_menu.addAction(self.validation_toggle_action)
+        
+        view_menu.addSeparator()
+        
+        # Reset layout action
+        reset_layout_action = QAction("&Reset Layout", self)
+        reset_layout_action.triggered.connect(self._reset_layout)
+        view_menu.addAction(reset_layout_action)
         
         # Tools menu
         tools_menu = menubar.addMenu("&Tools")
@@ -265,7 +319,7 @@ class MainWindow(QMainWindow):
         # Diagram view toggle
         self.diagram_toolbar_action = self._create_action("Diagram View", "view-preview", self._sync_diagram_toggle)
         self.diagram_toolbar_action.setCheckable(True)
-        self.diagram_toolbar_action.setChecked(False)
+        self.diagram_toolbar_action.setChecked(True)  # Now visible by default
         toolbar.addAction(self.diagram_toolbar_action)
     
     def _setup_status_bar(self):
@@ -464,16 +518,23 @@ class MainWindow(QMainWindow):
         """Handle element selection."""
         self.element_selected.emit(path)
     
-    def _toggle_diagram_view(self):
-        """Toggle diagram view visibility."""
-        if self.diagram_dock.isVisible():
-            self.diagram_dock.hide()
-            self.diagram_toggle_action.setChecked(False)
-            self.diagram_toolbar_action.setChecked(False)
-        else:
-            self.diagram_dock.show()
-            self.diagram_toggle_action.setChecked(True)
-            self.diagram_toolbar_action.setChecked(True)
+    def _toggle_package_tree(self):
+        """Toggle package tree visibility."""
+        is_visible = self.package_tree.isVisible()
+        self.package_tree.setVisible(not is_visible)
+        self.package_tree_toggle_action.setChecked(not is_visible)
+    
+    def _toggle_hierarchy_view(self):
+        """Toggle hierarchy view visibility."""
+        is_visible = self.hierarchy_view.isVisible()
+        self.hierarchy_view.setVisible(not is_visible)
+        self.hierarchy_toggle_action.setChecked(not is_visible)
+    
+    def _toggle_validation_panel(self):
+        """Toggle validation panel visibility."""
+        is_visible = self.validation_panel.isVisible()
+        self.validation_panel.setVisible(not is_visible)
+        self.validation_toggle_action.setChecked(not is_visible)
     
     def _sync_diagram_toggle(self):
         """Sync diagram toggle actions between menu and toolbar."""
@@ -481,10 +542,32 @@ class MainWindow(QMainWindow):
         self.diagram_toggle_action.setChecked(is_checked)
         self.diagram_toolbar_action.setChecked(is_checked)
         
-        if is_checked:
-            self.diagram_dock.show()
-        else:
-            self.diagram_dock.hide()
+        self.diagram_view.setVisible(is_checked)
+    
+    def _reset_layout(self):
+        """Reset the layout to default proportions."""
+        # Reset vertical splitter (main area vs validation panel)
+        self.main_vertical_splitter.setSizes([800, 200])
+        
+        # Reset horizontal splitter (left, center, right panels)
+        self.main_horizontal_splitter.setSizes([300, 500, 400])
+        
+        # Reset left vertical splitter (package tree vs hierarchy view)
+        self.left_vertical_splitter.setSizes([400, 300])
+        
+        # Show all panels
+        self.package_tree.setVisible(True)
+        self.hierarchy_view.setVisible(True)
+        self.property_editor.setVisible(True)
+        self.diagram_view.setVisible(True)
+        self.validation_panel.setVisible(True)
+        
+        # Update toggle actions
+        self.package_tree_toggle_action.setChecked(True)
+        self.hierarchy_toggle_action.setChecked(True)
+        self.diagram_toggle_action.setChecked(True)
+        self.diagram_toolbar_action.setChecked(True)
+        self.validation_toggle_action.setChecked(True)
     
     def _setup_window_geometry(self):
         """Set up window geometry with multi-monitor support."""
@@ -496,20 +579,20 @@ class MainWindow(QMainWindow):
                 primary_screen = QApplication.primaryScreen()
                 screen_geometry = primary_screen.availableGeometry()
                 
-                # Set window size based on screen size
-                width = min(1400, screen_geometry.width() - 100)
-                height = min(900, screen_geometry.height() - 100)
+                # Set window size based on screen size - larger for new layout
+                width = min(1600, screen_geometry.width() - 100)
+                height = min(1000, screen_geometry.height() - 100)
                 x = screen_geometry.x() + 50
                 y = screen_geometry.y() + 50
                 
                 self.setGeometry(x, y, width, height)
             else:
-                # Single screen - use default geometry
-                self.setGeometry(100, 100, 1400, 900)
+                # Single screen - use larger default geometry for new layout
+                self.setGeometry(100, 100, 1600, 1000)
                 
         except Exception as e:
             # Fallback to default geometry
-            self.setGeometry(100, 100, 1400, 900)
+            self.setGeometry(100, 100, 1600, 1000)
     
     def changeEvent(self, event):
         """Handle window state changes."""
