@@ -62,19 +62,19 @@ class MainWindow(QMainWindow):
         main_vertical_splitter = QSplitter(Qt.Vertical)
         self.setCentralWidget(main_vertical_splitter)
         
-        # Create horizontal splitter for left, center, and right panels
+        # Create horizontal splitter for Property Editor, Package Tree, Diagram View, and Hierarchy View
         main_horizontal_splitter = QSplitter(Qt.Horizontal)
         
-        # Create left vertical splitter for package tree and hierarchy view
+        # Create left vertical splitter for hierarchy view only
         left_vertical_splitter = QSplitter(Qt.Vertical)
-        left_vertical_splitter.addWidget(self.package_tree)
         left_vertical_splitter.addWidget(self.hierarchy_view)
-        left_vertical_splitter.setSizes([400, 300])  # Package tree gets more space initially
+        left_vertical_splitter.setSizes([600])  # Hierarchy view gets full height
         
-        # Add left panels to main horizontal splitter
-        main_horizontal_splitter.addWidget(left_vertical_splitter)
+        # Add panels to main horizontal splitter in new order: Property Editor, Package Tree, Diagram View
         main_horizontal_splitter.addWidget(self.property_editor)
+        main_horizontal_splitter.addWidget(self.package_tree)
         main_horizontal_splitter.addWidget(self.diagram_view)
+        main_horizontal_splitter.addWidget(left_vertical_splitter)
         
         # Ensure widgets are visible after being added to splitters
         self.package_tree.setVisible(True)
@@ -82,8 +82,8 @@ class MainWindow(QMainWindow):
         self.property_editor.setVisible(True)
         self.diagram_view.setVisible(True)
         
-        # Set horizontal splitter proportions
-        main_horizontal_splitter.setSizes([300, 500, 400])
+        # Set horizontal splitter proportions: Property Editor, Package Tree, Diagram View, Hierarchy View
+        main_horizontal_splitter.setSizes([500, 300, 400, 200])
         
         # Add horizontal splitter to main vertical splitter
         main_vertical_splitter.addWidget(main_horizontal_splitter)
@@ -135,8 +135,8 @@ class MainWindow(QMainWindow):
         self.validation_panel.setMinimumSize(400, 100)
         
         # Set maximum sizes to prevent panels from becoming too large
-        self.package_tree.setMaximumSize(600, 800)
-        self.hierarchy_view.setMaximumSize(600, 600)
+        self.package_tree.setMaximumSize(600, 1200)
+        self.hierarchy_view.setMaximumSize(400, 1200)
         self.property_editor.setMaximumSize(1000, 1200)
         self.diagram_view.setMaximumSize(800, 1200)
         self.validation_panel.setMaximumSize(2000, 400)
@@ -549,11 +549,11 @@ class MainWindow(QMainWindow):
         # Reset vertical splitter (main area vs validation panel)
         self.main_vertical_splitter.setSizes([800, 200])
         
-        # Reset horizontal splitter (left, center, right panels)
-        self.main_horizontal_splitter.setSizes([300, 500, 400])
+        # Reset horizontal splitter (Property Editor, Package Tree, Diagram View, Hierarchy View)
+        self.main_horizontal_splitter.setSizes([500, 300, 400, 200])
         
-        # Reset left vertical splitter (package tree vs hierarchy view)
-        self.left_vertical_splitter.setSizes([400, 300])
+        # Reset left vertical splitter (hierarchy view only)
+        self.left_vertical_splitter.setSizes([600])
         
         # Show all panels
         self.package_tree.setVisible(True)
