@@ -350,20 +350,11 @@ class DiagramViewWidget(QWidget):
         if not self.current_element:
             return
         
-        # For hierarchy diagrams, we'll use a simplified approach
-        # The full hierarchy view is available as a separate widget
-        self._create_simple_hierarchy_diagram()
+        # Add current element and its children with tree layout
+        self._add_element_hierarchy(self.current_element, 0, 0)
         
         # Apply layout
         self.scene.apply_auto_layout()
-    
-    def _create_simple_hierarchy_diagram(self):
-        """Create a simple hierarchy diagram."""
-        if not self.current_element:
-            return
-        
-        # Add current element and its children with tree layout
-        self._add_element_hierarchy(self.current_element, 0, 0)
     
     def _create_references_diagram(self):
         """Create references diagram showing reference relationships."""
@@ -547,7 +538,7 @@ class DiagramViewWidget(QWidget):
     
     def _show_context_menu(self, position):
         """Show context menu for diagram."""
-        item = self.scene.itemAt(self.view.mapToScene(position).x(), self.view.mapToScene(position).y())
+        item = self.scene.itemAt(self.view.mapToScene(position))
         if not item or not isinstance(item, DiagramNode):
             return
         

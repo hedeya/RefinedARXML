@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AUTOSAR xmlns="http://autosar.org/schema/r4.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://autosar.org/schema/r4.2 AUTOSAR_4-2-0.xsd">
+  <AR-PACKAGES>
+    <AR-PACKAGE>
+      <SHORT-NAME>VehicleControlSystem</SHORT-NAME>
+      <LONG-NAME>Vehicle Control System Package</LONG-NAME>
+      <ELEMENTS>
+        <!-- Engine Control Module -->
+        <ELEMENT>
+          <SHORT-NAME>EngineControlModule</SHORT-NAME>
+          <LONG-NAME>Engine Control Module</LONG-NAME>
+          <ELEMENTS>
+            <CONTAINER>
+              <SHORT-NAME>EngineConfiguration</SHORT-NAME>
+              <LONG-NAME>Engine Configuration Parameters</LONG-NAME>
+              <ELEMENTS>
+                <PARAMETER>
+                  <SHORT-NAME>MaxRPM</SHORT-NAME>
+                  <LONG-NAME>Maximum Engine RPM</LONG-NAME>
+                  <VALUE>6500</VALUE>
+                </PARAMETER>
+                <PARAMETER>
+                  <SHORT-NAME>IdleRPM</SHORT-NAME>
+                  <LONG-NAME>Idle Engine RPM</LONG-NAME>
+                  <VALUE>750</VALUE>
+                </PARAMETER>
+                <PARAMETER>
+                  <SHORT-NAME>RedlineRPM</SHORT-NAME>
+                  <LONG-NAME>Redline Engine RPM</LONG-NAME>
+                  <VALUE>7000</VALUE>
+                </PARAMETER>
+              </ELEMENTS>
+            </CONTAINER>
+            <CONTAINER>
+              <SHORT-NAME>EngineSensors</SHORT-NAME>
+              <LONG-NAME>Engine Sensor Configuration</LONG-NAME>
+              <ELEMENTS>
+                <ELEMENT>
+                  <SHORT-NAME>TemperatureSensor</SHORT-NAME>
+                  <LONG-NAME>Engine Temperature Sensor</LONG-NAME>
+                  <ELEMENTS>
+                    <PARAMETER>
+                      <SHORT-NAME>SensorType</SHORT-NAME>
+                      <LONG-NAME>Temperature Sensor Type</LONG-NAME>
+                      <VALUE>THERMISTOR</VALUE>
+                    </PARAMETER>
+                    <PARAMETER>
+                      <SHORT-NAME>CalibrationFactor</SHORT-NAME>
+                      <LONG-NAME>Temperature Calibration Factor</LONG-NAME>
+                      <VALUE>0.1</VALUE>
+                    </PARAMETER>
+                  </ELEMENTS>
+                </ELEMENT>
+                <ELEMENT>
+                  <SHORT-NAME>PressureSensor</SHORT-NAME>
+                  <LONG-NAME>Engine Oil Pressure Sensor</LONG-NAME>
+                  <ELEMENTS>
+                    <PARAMETER>
+                      <SHORT-NAME>SensorType</SHORT-NAME>
+                      <LONG-NAME>Pressure Sensor Type</LONG-NAME>
+                      <VALUE>PIEZOELECTRIC</VALUE>
+                    </PARAMETER>
+                    <PARAMETER>
+                      <SHORT-NAME>MaxPressure</SHORT-NAME>
+                      <LONG-NAME>Maximum Measurable Pressure</LONG-NAME>
+                      <VALUE>10.0</VALUE>
+                    </PARAMETER>
+                  </ELEMENTS>
+                </ELEMENT>
+                <ELEMENT>
+                  <SHORT-NAME>RPM_Sensor</SHORT-NAME>
+                  <LONG-NAME>Engine RPM Sensor</LONG-NAME>
+                  <ELEMENTS>
+                    <PARAMETER>
+                      <SHORT-NAME>SensorType</SHORT-NAME>
+                      <LONG-NAME>RPM Sensor Type</LONG-NAME>
+                      <VALUE>HALL_EFFECT</VALUE>
+                    </PARAMETER>
+                    <PARAMETER>
+                      <SHORT-NAME>PulsesPerRevolution</SHORT-NAME>
+                      <LONG-NAME>Pulses Per Engine Revolution</LONG-NAME>
+                      <VALUE>60</VALUE>
+                    </PARAMETER>
+                  </ELEMENTS>
+                </ELEMENT>
+              </ELEMENTS>
+            </CONTAINER>
+            <CONTAINER>
+              <SHORT-NAME>EngineActuators</SHORT-NAME>
+              <LONG-NAME>Engine Actuator Configuration</LONG-NAME>
+              <ELEMENTS>
+                <ELEMENT>
+                  <SHORT-NAME>ThrottleValve</SHORT-NAME>
+                  <LONG-NAME>Electronic Throttle Valve</LONG-NAME>
+                  <ELEMENTS>
+                    <PARAMETER>
+                      <SHORT-NAME>MaxOpening</SHORT-NAME>
+                      <LONG-NAME>Maximum Throttle Opening</LONG-NAME>
+                      <VALUE>90</VALUE>
+                    </PARAMETER>
+                    <PARAMETER>
+                      <SHORT-NAME>MinOpening</SHORT-NAME>
+                      <LONG-NAME>Minimum Throttle Opening</LONG-NAME>
+                      <VALUE>5</VALUE>
+                    </PARAMETER>
+                  </ELEMENTS>
+                </ELEMENT>
+                <ELEMENT>
+                  <SHORT-NAME>FuelInjector</SHORT-NAME>
+                  <LONG-NAME>Fuel Injection System</LONG-NAME>
+                  <ELEMENTS>
+                    <PARAMETER>
+                      <SHORT-NAME>InjectionTiming</SHORT-NAME>
+                      <LONG-NAME>Fuel Injection Timing</LONG-NAME>
+                      <VALUE>0.0</VALUE>
+                    </PARAMETER>
+                    <PARAMETER>
+                      <SHORT-NAME>InjectionDuration</SHORT-NAME>
+                      <LONG-NAME>Fuel Injection Duration</LONG-NAME>
+                      <VALUE>2.5</VALUE>
+                    </PARAMETER>
+                  </ELEMENTS>
+                </ELEMENT>
+              </ELEMENTS>
+            </CONTAINER>
+          </ELEMENTS>
+        </ELEMENT>
+        
+        <!-- Transmission Control Module -->
+        <ELEMENT>
+          <SHORT-NAME>TransmissionControlModule</SHORT-NAME>
+          <LONG-NAME>Transmission Control Module</LONG-NAME>
+          <ELEMENTS>
+            <CONTAINER>
+              <SHORT-NAME>TransmissionConfiguration</SHORT-NAME>
+              <LONG-NAME>Transmission Configuration Parameters</LONG-NAME>
+              <ELEMENTS>
+                <PARAMETER>
+                  <SHORT-NAME>NumberOfGears</SHORT-NAME>
+                  <LONG-NAME>Number of Transmission Gears</LONG-NAME>
+                  <VALUE>6</VALUE>
+                </PARAMETER>
+                <PARAMETER>
+                  <SHORT-NAME>GearRatios</SHORT-NAME>
+                  <LONG-NAME>Transmission Gear Ratios</LONG-NAME>
+                  <VALUE>3.5,2.1,1.4,1.0,0.8,0.6</VALUE>
+                </PARAMETER>
+              </ELEMENTS>
+            </CONTAINER>
+            <CONTAINER>
+              <SHORT-NAME>TransmissionSensors</SHORT-NAME>
+              <LONG-NAME>Transmission Sensor Configuration</LONG-NAME>
+              <ELEMENTS>
+                <ELEMENT>
+                  <SHORT-NAME>GearPositionSensor</SHORT-NAME>
+                  <LONG-NAME>Gear Position Sensor</LONG-NAME>
+                  <ELEMENTS>
+                    <PARAMETER>
+                      <SHORT-NAME>SensorType</SHORT-NAME>
+                      <LONG-NAME>Gear Position Sensor Type</LONG-NAME>
+                      <VALUE>ENCODER</VALUE>
+                    </PARAMETER>
+                    <PARAMETER>
+                      <SHORT-NAME>Resolution</SHORT-NAME>
+                      <LONG-NAME>Sensor Resolution</LONG-NAME>
+                      <VALUE>360</VALUE>
+                    </PARAMETER>
+                  </ELEMENTS>
+                </ELEMENT>
+                <ELEMENT>
+                  <SHORT-NAME>TransmissionTemperatureSensor</SHORT-NAME>
+                  <LONG-NAME>Transmission Temperature Sensor</LONG-NAME>
+                  <ELEMENTS>
+                    <PARAMETER>
+                      <SHORT-NAME>SensorType</SHORT-NAME>
+                      <LONG-NAME>Temperature Sensor Type</LONG-NAME>
+                      <VALUE>THERMISTOR</VALUE>
+                    </PARAMETER>
+                    <PARAMETER>
+                      <SHORT-NAME>OperatingRange</SHORT-NAME>
+                      <LONG-NAME>Operating Temperature Range</LONG-NAME>
+                      <VALUE>-40,150</VALUE>
+                    </PARAMETER>
+                  </ELEMENTS>
+                </ELEMENT>
+              </ELEMENTS>
+            </CONTAINER>
+          </ELEMENTS>
+        </ELEMENT>
+        
+        <!-- Brake Control Module -->
+        <ELEMENT>
+          <SHORT-NAME>BrakeControlModule</SHORT-NAME>
+          <LONG-NAME>Brake Control Module</LONG-NAME>
+          <ELEMENTS>
+            <CONTAINER>
+              <SHORT-NAME>BrakeConfiguration</SHORT-NAME>
+              <LONG-NAME>Brake System Configuration</LONG-NAME>
+              <ELEMENTS>
+                <PARAMETER>
+                  <SHORT-NAME>MaxBrakeForce</SHORT-NAME>
+                  <LONG-NAME>Maximum Brake Force</LONG-NAME>
+                  <VALUE>1000</VALUE>
+                </PARAMETER>
+                <PARAMETER>
+                  <SHORT-NAME>BrakeAssistLevel</SHORT-NAME>
+                  <LONG-NAME>Brake Assist Level</LONG-NAME>
+                  <VALUE>HIGH</VALUE>
+                </PARAMETER>
+              </ELEMENTS>
+            </CONTAINER>
+            <CONTAINER>
+              <SHORT-NAME>BrakeSensors</SHORT-NAME>
+              <LONG-NAME>Brake Sensor Configuration</LONG-NAME>
+              <ELEMENTS>
+                <ELEMENT>
+                  <SHORT-NAME>BrakePedalSensor</SHORT-NAME>
+                  <LONG-NAME>Brake Pedal Position Sensor</LONG-NAME>
+                  <ELEMENTS>
+                    <PARAMETER>
+                      <SHORT-NAME>SensorType</SHORT-NAME>
+                      <LONG-NAME>Pedal Sensor Type</LONG-NAME>
+                      <VALUE>POTENTIOMETER</VALUE>
+                    </PARAMETER>
+                    <PARAMETER>
+                      <SHORT-NAME>TravelRange</SHORT-NAME>
+                      <LONG-NAME>Pedal Travel Range</LONG-NAME>
+                      <VALUE>100</VALUE>
+                    </PARAMETER>
+                  </ELEMENTS>
+                </ELEMENT>
+                <ELEMENT>
+                  <SHORT-NAME>WheelSpeedSensor</SHORT-NAME>
+                  <LONG-NAME>Wheel Speed Sensor</LONG-NAME>
+                  <ELEMENTS>
+                    <PARAMETER>
+                      <SHORT-NAME>SensorType</SHORT-NAME>
+                      <LONG-NAME>Wheel Speed Sensor Type</LONG-NAME>
+                      <VALUE>HALL_EFFECT</VALUE>
+                    </PARAMETER>
+                    <PARAMETER>
+                      <SHORT-NAME>PulsesPerRevolution</SHORT-NAME>
+                      <LONG-NAME>Pulses Per Wheel Revolution</LONG-NAME>
+                      <VALUE>48</VALUE>
+                    </PARAMETER>
+                  </ELEMENTS>
+                </ELEMENT>
+              </ELEMENTS>
+            </CONTAINER>
+          </ELEMENTS>
+        </ELEMENT>
+      </ELEMENTS>
+    </AR-PACKAGE>
+  </AR-PACKAGES>
+</AUTOSAR>

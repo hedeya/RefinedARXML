@@ -97,94 +97,33 @@ class ARXMLModel:
             return False
         
         try:
-            # Determine which in-memory file we will serialize.
-            # If the requested target_file isn't in the loaded files, fall back
-            # to serializing the currently loaded file (if any). This handles
-            # save-as style operations where the path may be new.
-            in_memory_file_path = target_file if target_file in self.files else self.current_file
-
-            if in_memory_file_path is None or in_memory_file_path not in self.files:
-                print(f"Error saving file {target_file}: no in-memory data to serialize")
-                return False
-
             # Get target schema
             if target_schema:
                 schema_version = target_schema
             else:
-                schema_version = self.files[in_memory_file_path].schema_version
-
+                schema_version = self.files[target_file].schema_version
+            
             if not schema_version:
                 schema_version = AUTOSARRelease.R22_11  # Default
-
-            # Serialize content (serialize the in-memory file, but write to target_file)
-            content = self._serialize_file(in_memory_file_path, schema_version)
             
-            # Ensure parent directory exists
-            try:
-                target_file_parent = Path(target_file).parent
-                target_file_parent.mkdir(parents=True, exist_ok=True)
-            except Exception:
-                # If we cannot create parent directory, log and fail
-                import logging
-                logging.getLogger(__name__).exception("Failed to ensure parent directory for %s", target_file)
-                return False
-
-            # Write to a temporary file in the same directory then atomically replace
-            import tempfile, os
-            try:
-                with tempfile.NamedTemporaryFile('w', encoding='utf-8', dir=str(target_file_parent), delete=False) as tf:
-                    tf.write(content)
-                    tf.flush()
-                    os.fsync(tf.fileno())
-                    tmp_path = Path(tf.name)
-
-                # Atomically move into place
-                os.replace(str(tmp_path), str(target_file))
-                # Set sane permissions
-                try:
-                    os.chmod(str(target_file), 0o644)
-                except Exception:
-                    pass
-            except Exception:
-                import logging
-                logging.getLogger(__name__).exception("Failed to write temporary file for %s", target_file)
-                # Clean up tmp file if present
-                try:
-                    if 'tmp_path' in locals() and tmp_path.exists():
-                        tmp_path.unlink()
-                except Exception:
-                    pass
-                return False
+            # Serialize content
+            content = self._serialize_file(target_file, schema_version)
             
-            # If we're writing to an existing in-memory file, update its metadata.
-            # If we're performing a Save As (writing to a new path), create a new
-            # ARXMLFile entry so subsequent operations know about it.
+            # Write to file
+            with open(target_file, 'w', encoding='utf-8') as f:
+                f.write(content)
+            
+            # Update file metadata
             if target_file in self.files:
                 self.files[target_file].content = content
                 self.files[target_file].is_modified = False
                 self.files[target_file].schema_version = schema_version
-            else:
-                # Create a new ARXMLFile entry by cloning the in-memory one.
-                src = self.files[in_memory_file_path]
-                new_file = ARXMLFile(
-                    path=Path(target_file),
-                    content=content,
-                    root_element=src.root_element,
-                    schema_version=schema_version,
-                    is_modified=False,
-                    file_size=len(content)
-                )
-                self.files[Path(target_file)] = new_file
-                # If this was a Save As, update current_file to the new path
-                self.current_file = Path(target_file)
             
             self.is_modified = False
             return True
             
         except Exception as e:
-            # Use logging to capture stack trace for diagnostics
-            import logging
-            logging.getLogger(__name__).exception("Error saving file %s", target_file)
+            print(f"Error saving file {target_file}: {e}")
             return False
     
     def _index_file(self, arxml_file: ARXMLFile) -> None:
@@ -221,9 +160,6 @@ class ARXMLModel:
     def _serialize_file(self, file_path: Path, schema_version: AUTOSARRelease) -> str:
         """Serialize file content with proper formatting."""
         arxml_file = self.files.get(file_path)
-        if not arxml_file:
-            # Fall back to current_file if available
-            arxml_file = self.files.get(self.current_file) if self.current_file in self.files else None
         if not arxml_file:
             return ""
         

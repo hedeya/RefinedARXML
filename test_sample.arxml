@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AUTOSAR xmlns="http://autosar.org/schema/r4.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://autosar.org/schema/r4.2 AUTOSAR_4-2-0.xsd">
+  <AR-PACKAGES>
+    <AR-PACKAGE>
+      <SHORT-NAME>TestPackage</SHORT-NAME>
+      <LONG-NAME>Test Package for Hierarchy Visualization</LONG-NAME>
+      <ELEMENTS>
+        <ELEMENT>
+          <SHORT-NAME>EngineControl</SHORT-NAME>
+          <LONG-NAME>Engine Control Software Component</LONG-NAME>
+          <ELEMENTS>
+            <CONTAINER>
+              <SHORT-NAME>EngineParams</SHORT-NAME>
+              <LONG-NAME>Engine Parameters</LONG-NAME>
+              <ELEMENTS>
+                <PARAMETER>
+                  <SHORT-NAME>MaxRPM</SHORT-NAME>
+                  <LONG-NAME>Maximum RPM</LONG-NAME>
+                  <VALUE>6000</VALUE>
+                </PARAMETER>
+                <PARAMETER>
+                  <SHORT-NAME>IdleRPM</SHORT-NAME>
+                  <LONG-NAME>Idle RPM</LONG-NAME>
+                  <VALUE>800</VALUE>
+                </PARAMETER>
+              </ELEMENTS>
+            </CONTAINER>
+            <CONTAINER>
+              <SHORT-NAME>EngineSensors</SHORT-NAME>
+              <LONG-NAME>Engine Sensors</LONG-NAME>
+              <ELEMENTS>
+                <ELEMENT>
+                  <SHORT-NAME>TemperatureSensor</SHORT-NAME>
+                  <LONG-NAME>Temperature Sensor</LONG-NAME>
+                </ELEMENT>
+                <ELEMENT>
+                  <SHORT-NAME>PressureSensor</SHORT-NAME>
+                  <LONG-NAME>Pressure Sensor</LONG-NAME>
+                </ELEMENT>
+              </ELEMENTS>
+            </CONTAINER>
+          </ELEMENTS>
+        </ELEMENT>
+        <ELEMENT>
+          <SHORT-NAME>TransmissionControl</SHORT-NAME>
+          <LONG-NAME>Transmission Control Software Component</LONG-NAME>
+          <ELEMENTS>
+            <CONTAINER>
+              <SHORT-NAME>GearParams</SHORT-NAME>
+              <LONG-NAME>Gear Parameters</LONG-NAME>
+              <ELEMENTS>
+                <PARAMETER>
+                  <SHORT-NAME>MaxGear</SHORT-NAME>
+                  <LONG-NAME>Maximum Gear</LONG-NAME>
+                  <VALUE>6</VALUE>
+                </PARAMETER>
+              </ELEMENTS>
+            </CONTAINER>
+          </ELEMENTS>
+        </ELEMENT>
+      </ELEMENTS>
+    </AR-PACKAGE>
+  </AR-PACKAGES>
+</AUTOSAR>

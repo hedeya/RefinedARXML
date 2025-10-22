@@ -1,2 +1,1 @@
-Windows bundle v1.0.4
-Includes build package and scripts to create a standalone Windows executable using PyInstaller. See BUILD_INSTRUCTIONS.md inside the package.
+Windows installer v1.0.4

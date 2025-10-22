@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AUTOSAR xmlns="http://autosar.org/schema/r4.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://autosar.org/schema/r4.2 R22.11.xsd">
+<{http://autosar.org/schema/r4.2}AUTOSAR>
+  <{http://autosar.org/schema/r4.2}AR-PACKAGES>
+    <{http://autosar.org/schema/r4.2}AR-PACKAGE>
+      <{http://autosar.org/schema/r4.2}SHORT-NAME>VehicleControlSystem</{http://autosar.org/schema/r4.2}SHORT-NAME>
+      <{http://autosar.org/schema/r4.2}LONG-NAME>Vehicle Control System Package</{http://autosar.org/schema/r4.2}LONG-NAME>
+      <{http://autosar.org/schema/r4.2}ELEMENTS>
+        <{http://autosar.org/schema/r4.2}ELEMENT>
+          <{http://autosar.org/schema/r4.2}SHORT-NAME>EngineControlModule-Hayman</{http://autosar.org/schema/r4.2}SHORT-NAME>
+          <{http://autosar.org/schema/r4.2}LONG-NAME>Engine Control Module</{http://autosar.org/schema/r4.2}LONG-NAME>
+          <{http://autosar.org/schema/r4.2}ELEMENTS>
+            <{http://autosar.org/schema/r4.2}CONTAINER>
+              <{http://autosar.org/schema/r4.2}SHORT-NAME>EngineConfiguration</{http://autosar.org/schema/r4.2}SHORT-NAME>
+              <{http://autosar.org/schema/r4.2}LONG-NAME>Engine Configuration Parameters</{http://autosar.org/schema/r4.2}LONG-NAME>
+              <{http://autosar.org/schema/r4.2}ELEMENTS>
+                <{http://autosar.org/schema/r4.2}PARAMETER>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>MaxRPM</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Maximum Engine RPM</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}VALUE>6500</{http://autosar.org/schema/r4.2}VALUE>
+                </{http://autosar.org/schema/r4.2}PARAMETER>
+                <{http://autosar.org/schema/r4.2}PARAMETER>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>IdleRPM</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Idle Engine RPM</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}VALUE>750</{http://autosar.org/schema/r4.2}VALUE>
+                </{http://autosar.org/schema/r4.2}PARAMETER>
+                <{http://autosar.org/schema/r4.2}PARAMETER>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>RedlineRPM</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Redline Engine RPM</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}VALUE>7000</{http://autosar.org/schema/r4.2}VALUE>
+                </{http://autosar.org/schema/r4.2}PARAMETER>
+              </{http://autosar.org/schema/r4.2}ELEMENTS>
+            </{http://autosar.org/schema/r4.2}CONTAINER>
+            <{http://autosar.org/schema/r4.2}CONTAINER>
+              <{http://autosar.org/schema/r4.2}SHORT-NAME>EngineSensors</{http://autosar.org/schema/r4.2}SHORT-NAME>
+              <{http://autosar.org/schema/r4.2}LONG-NAME>Engine Sensor Configuration</{http://autosar.org/schema/r4.2}LONG-NAME>
+              <{http://autosar.org/schema/r4.2}ELEMENTS>
+                <{http://autosar.org/schema/r4.2}ELEMENT>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>TemperatureSensor</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Engine Temperature Sensor</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}ELEMENTS>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>SensorType</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Temperature Sensor Type</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>THERMISTOR</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>CalibrationFactor</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Temperature Calibration Factor</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>0.1</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                  </{http://autosar.org/schema/r4.2}ELEMENTS>
+                </{http://autosar.org/schema/r4.2}ELEMENT>
+                <{http://autosar.org/schema/r4.2}ELEMENT>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>PressureSensor</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Engine Oil Pressure Sensor</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}ELEMENTS>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>SensorType</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Pressure Sensor Type</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>PIEZOELECTRIC</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>MaxPressure</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Maximum Measurable Pressure</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>10.0</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                  </{http://autosar.org/schema/r4.2}ELEMENTS>
+                </{http://autosar.org/schema/r4.2}ELEMENT>
+                <{http://autosar.org/schema/r4.2}ELEMENT>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>RPM_Sensor</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Engine RPM Sensor</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}ELEMENTS>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>SensorType</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>RPM Sensor Type</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>HALL_EFFECT</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>PulsesPerRevolution</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Pulses Per Engine Revolution</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>60</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                  </{http://autosar.org/schema/r4.2}ELEMENTS>
+                </{http://autosar.org/schema/r4.2}ELEMENT>
+              </{http://autosar.org/schema/r4.2}ELEMENTS>
+            </{http://autosar.org/schema/r4.2}CONTAINER>
+            <{http://autosar.org/schema/r4.2}CONTAINER>
+              <{http://autosar.org/schema/r4.2}SHORT-NAME>EngineActuators</{http://autosar.org/schema/r4.2}SHORT-NAME>
+              <{http://autosar.org/schema/r4.2}LONG-NAME>Engine Actuator Configuration</{http://autosar.org/schema/r4.2}LONG-NAME>
+              <{http://autosar.org/schema/r4.2}ELEMENTS>
+                <{http://autosar.org/schema/r4.2}ELEMENT>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>ThrottleValve</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Electronic Throttle Valve</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}ELEMENTS>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>MaxOpening</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Maximum Throttle Opening</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>90</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>MinOpening</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Minimum Throttle Opening</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>5</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                  </{http://autosar.org/schema/r4.2}ELEMENTS>
+                </{http://autosar.org/schema/r4.2}ELEMENT>
+                <{http://autosar.org/schema/r4.2}ELEMENT>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>FuelInjector</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Fuel Injection System</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}ELEMENTS>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>InjectionTiming</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Fuel Injection Timing</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>0.0</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>InjectionDuration</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Fuel Injection Duration</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>2.5</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                  </{http://autosar.org/schema/r4.2}ELEMENTS>
+                </{http://autosar.org/schema/r4.2}ELEMENT>
+              </{http://autosar.org/schema/r4.2}ELEMENTS>
+            </{http://autosar.org/schema/r4.2}CONTAINER>
+          </{http://autosar.org/schema/r4.2}ELEMENTS>
+        </{http://autosar.org/schema/r4.2}ELEMENT>
+        <{http://autosar.org/schema/r4.2}ELEMENT>
+          <{http://autosar.org/schema/r4.2}SHORT-NAME>TransmissionControlModule</{http://autosar.org/schema/r4.2}SHORT-NAME>
+          <{http://autosar.org/schema/r4.2}LONG-NAME>Transmission Control Module</{http://autosar.org/schema/r4.2}LONG-NAME>
+          <{http://autosar.org/schema/r4.2}ELEMENTS>
+            <{http://autosar.org/schema/r4.2}CONTAINER>
+              <{http://autosar.org/schema/r4.2}SHORT-NAME>TransmissionConfiguration</{http://autosar.org/schema/r4.2}SHORT-NAME>
+              <{http://autosar.org/schema/r4.2}LONG-NAME>Transmission Configuration Parameters</{http://autosar.org/schema/r4.2}LONG-NAME>
+              <{http://autosar.org/schema/r4.2}ELEMENTS>
+                <{http://autosar.org/schema/r4.2}PARAMETER>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>NumberOfGears</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Number of Transmission Gears</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}VALUE>6</{http://autosar.org/schema/r4.2}VALUE>
+                </{http://autosar.org/schema/r4.2}PARAMETER>
+                <{http://autosar.org/schema/r4.2}PARAMETER>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>GearRatios</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Transmission Gear Ratios</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}VALUE>3.5,2.1,1.4,1.0,0.8,0.6</{http://autosar.org/schema/r4.2}VALUE>
+                </{http://autosar.org/schema/r4.2}PARAMETER>
+              </{http://autosar.org/schema/r4.2}ELEMENTS>
+            </{http://autosar.org/schema/r4.2}CONTAINER>
+            <{http://autosar.org/schema/r4.2}CONTAINER>
+              <{http://autosar.org/schema/r4.2}SHORT-NAME>TransmissionSensors</{http://autosar.org/schema/r4.2}SHORT-NAME>
+              <{http://autosar.org/schema/r4.2}LONG-NAME>Transmission Sensor Configuration</{http://autosar.org/schema/r4.2}LONG-NAME>
+              <{http://autosar.org/schema/r4.2}ELEMENTS>
+                <{http://autosar.org/schema/r4.2}ELEMENT>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>GearPositionSensor</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Gear Position Sensor</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}ELEMENTS>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>SensorType</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Gear Position Sensor Type</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>ENCODER</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>Resolution</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Sensor Resolution</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>360</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                  </{http://autosar.org/schema/r4.2}ELEMENTS>
+                </{http://autosar.org/schema/r4.2}ELEMENT>
+                <{http://autosar.org/schema/r4.2}ELEMENT>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>TransmissionTemperatureSensor</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Transmission Temperature Sensor</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}ELEMENTS>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>SensorType</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Temperature Sensor Type</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>THERMISTOR</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>OperatingRange</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Operating Temperature Range</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>-40,150</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                  </{http://autosar.org/schema/r4.2}ELEMENTS>
+                </{http://autosar.org/schema/r4.2}ELEMENT>
+              </{http://autosar.org/schema/r4.2}ELEMENTS>
+            </{http://autosar.org/schema/r4.2}CONTAINER>
+          </{http://autosar.org/schema/r4.2}ELEMENTS>
+        </{http://autosar.org/schema/r4.2}ELEMENT>
+        <{http://autosar.org/schema/r4.2}ELEMENT>
+          <{http://autosar.org/schema/r4.2}SHORT-NAME>BrakeControlModule</{http://autosar.org/schema/r4.2}SHORT-NAME>
+          <{http://autosar.org/schema/r4.2}LONG-NAME>Brake Control Module</{http://autosar.org/schema/r4.2}LONG-NAME>
+          <{http://autosar.org/schema/r4.2}ELEMENTS>
+            <{http://autosar.org/schema/r4.2}CONTAINER>
+              <{http://autosar.org/schema/r4.2}SHORT-NAME>BrakeConfiguration</{http://autosar.org/schema/r4.2}SHORT-NAME>
+              <{http://autosar.org/schema/r4.2}LONG-NAME>Brake System Configuration</{http://autosar.org/schema/r4.2}LONG-NAME>
+              <{http://autosar.org/schema/r4.2}ELEMENTS>
+                <{http://autosar.org/schema/r4.2}PARAMETER>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>MaxBrakeForce</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Maximum Brake Force</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}VALUE>1000</{http://autosar.org/schema/r4.2}VALUE>
+                </{http://autosar.org/schema/r4.2}PARAMETER>
+                <{http://autosar.org/schema/r4.2}PARAMETER>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>BrakeAssistLevel</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Brake Assist Level</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}VALUE>HIGH</{http://autosar.org/schema/r4.2}VALUE>
+                </{http://autosar.org/schema/r4.2}PARAMETER>
+              </{http://autosar.org/schema/r4.2}ELEMENTS>
+            </{http://autosar.org/schema/r4.2}CONTAINER>
+            <{http://autosar.org/schema/r4.2}CONTAINER>
+              <{http://autosar.org/schema/r4.2}SHORT-NAME>BrakeSensors</{http://autosar.org/schema/r4.2}SHORT-NAME>
+              <{http://autosar.org/schema/r4.2}LONG-NAME>Brake Sensor Configuration</{http://autosar.org/schema/r4.2}LONG-NAME>
+              <{http://autosar.org/schema/r4.2}ELEMENTS>
+                <{http://autosar.org/schema/r4.2}ELEMENT>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>BrakePedalSensor</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Brake Pedal Position Sensor</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}ELEMENTS>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>SensorType</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Pedal Sensor Type</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>POTENTIOMETER</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>TravelRange</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Pedal Travel Range</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>100</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                  </{http://autosar.org/schema/r4.2}ELEMENTS>
+                </{http://autosar.org/schema/r4.2}ELEMENT>
+                <{http://autosar.org/schema/r4.2}ELEMENT>
+                  <{http://autosar.org/schema/r4.2}SHORT-NAME>WheelSpeedSensor</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                  <{http://autosar.org/schema/r4.2}LONG-NAME>Wheel Speed Sensor</{http://autosar.org/schema/r4.2}LONG-NAME>
+                  <{http://autosar.org/schema/r4.2}ELEMENTS>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>SensorType</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Wheel Speed Sensor Type</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>HALL_EFFECT</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                    <{http://autosar.org/schema/r4.2}PARAMETER>
+                      <{http://autosar.org/schema/r4.2}SHORT-NAME>PulsesPerRevolution</{http://autosar.org/schema/r4.2}SHORT-NAME>
+                      <{http://autosar.org/schema/r4.2}LONG-NAME>Pulses Per Wheel Revolution</{http://autosar.org/schema/r4.2}LONG-NAME>
+                      <{http://autosar.org/schema/r4.2}VALUE>48</{http://autosar.org/schema/r4.2}VALUE>
+                    </{http://autosar.org/schema/r4.2}PARAMETER>
+                  </{http://autosar.org/schema/r4.2}ELEMENTS>
+                </{http://autosar.org/schema/r4.2}ELEMENT>
+              </{http://autosar.org/schema/r4.2}ELEMENTS>
+            </{http://autosar.org/schema/r4.2}CONTAINER>
+          </{http://autosar.org/schema/r4.2}ELEMENTS>
+        </{http://autosar.org/schema/r4.2}ELEMENT>
+      </{http://autosar.org/schema/r4.2}ELEMENTS>
+    </{http://autosar.org/schema/r4.2}AR-PACKAGE>
+  </{http://autosar.org/schema/r4.2}AR-PACKAGES>
+</{http://autosar.org/schema/r4.2}AUTOSAR>
+</AUTOSAR>

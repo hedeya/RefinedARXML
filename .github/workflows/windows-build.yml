@@ -46,14 +46,16 @@ jobs:
 
       - name: Create or update GitHub release and upload asset (on tag)
         if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
         run: |
           echo "Release tag: $GITHUB_REF"
-          TAG_NAME=${GITHUB_REF#refs/tags/}
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
           echo "Using tag: $TAG_NAME"
-          pushd ARXMLEditor-Windows-Build-Package
+          cd ARXMLEditor-Windows-Build-Package
           # Create release if it does not exist, otherwise upload/replace the asset
-          gh release create "$TAG_NAME" dist/ARXMLEditor.exe --title "$TAG_NAME" --notes "Automated Windows build for $TAG_NAME" || \
-            (echo "Release may already exist, attempting to upload asset" && gh release upload "$TAG_NAME" dist/ARXMLEditor.exe --clobber)
-          popd
+          if ! gh release create "$TAG_NAME" dist/ARXMLEditor.exe --title "$TAG_NAME" --notes "Automated Windows build for $TAG_NAME"; then
+            echo "Release may already exist, attempting to upload asset"
+            gh release upload "$TAG_NAME" dist/ARXMLEditor.exe --clobber
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
