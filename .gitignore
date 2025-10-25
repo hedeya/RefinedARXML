@@ -100,3 +100,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+# Block docx in validation folder
+ARXMLEditor-Windows-Build-Package/arxml_editor/validation/*.docx
